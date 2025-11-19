@@ -55,6 +55,7 @@
                     </a>
                 </li>
 
+
                 <li><a href="#"><i class="fa-solid fa-ellipsis"></i><span>More</span></a></li>
                 <li><a href="{{ url_for('logout') }}"><i
                             class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
@@ -62,7 +63,7 @@
 
             <button class="post-btn">Post</button>
 
-            <a href="/profile">
+            <a href="/profile" mix-get>
                 <div id="profile_tag">
                     <img src="{{ url_for('static', filename='images/avatar_1.jpg') }}" alt="Profile">
                     <div>

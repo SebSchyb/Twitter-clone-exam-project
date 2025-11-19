@@ -28,6 +28,22 @@ def lans(key):
         data = json.load(file)
     return data[key][default_language]
 
+# external db connection
+# external_db = mysql.connector.connect(
+#     host = "hv74b5.h.filess.io",
+#     user = "twitterclone_scientist",  
+#     password = "c4359945c59082f39adfb9ada1634b0f2dcb45f8",
+#     database = "twitterclone_scientist"
+# )
+
+# internal db connection
+# internal_db = mysql.connector.connect(
+#     host = "mariadb",
+#     user = "root",  
+#     password = "password",
+#     database = "x"
+# )
+
 ##############################
 def db():
     try:
@@ -37,6 +53,7 @@ def db():
             password = "password",
             database = "x"
         )
+
         cursor = db.cursor(dictionary=True)
         return db, cursor
     except Exception as e:
