@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Vært: mariadb
--- Genereringstid: 19. 11 2025 kl. 08:56:35
--- Serverversion: 10.6.20-MariaDB-ubu2004
--- PHP-version: 8.2.27
+-- Host: mariadb
+-- Generation Time: Nov 22, 2025 at 05:14 PM
+-- Server version: 10.6.20-MariaDB-ubu2004
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,25 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `posts`
+-- Table structure for table `likes`
+--
+
+CREATE TABLE `likes` (
+  `post_fk` char(32) NOT NULL,
+  `user_fk` char(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `likes`
+--
+
+INSERT INTO `likes` (`post_fk`, `user_fk`) VALUES
+('99fefea24ea5419da19ed1f8cf8e9499', '225a9fc15b8f409aa5c8ee7eafee516b');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `posts`
 --
 
 CREATE TABLE `posts` (
@@ -36,7 +54,7 @@ CREATE TABLE `posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `posts`
+-- Dumping data for table `posts`
 --
 
 INSERT INTO `posts` (`post_pk`, `post_user_fk`, `post_message`, `post_total_likes`, `post_image_path`) VALUES
@@ -62,7 +80,7 @@ INSERT INTO `posts` (`post_pk`, `post_user_fk`, `post_message`, `post_total_like
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `trends`
+-- Table structure for table `trends`
 --
 
 CREATE TABLE `trends` (
@@ -72,7 +90,7 @@ CREATE TABLE `trends` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `trends`
+-- Dumping data for table `trends`
 --
 
 INSERT INTO `trends` (`trend_pk`, `trend_title`, `trend_message`) VALUES
@@ -82,7 +100,7 @@ INSERT INTO `trends` (`trend_pk`, `trend_title`, `trend_message`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -98,7 +116,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, `user_first_name`, `user_last_name`, `user_avatar_path`, `user_verification_key`, `user_verified_at`) VALUES
@@ -109,24 +127,30 @@ INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, 
 ('e06e069c01144a96904af5246e0b30d7', 'sebschyb.dev@gmail.com', 'scrypt:32768:8:1$wfyUMwcAxZAXhZad$a9828f2a1251205660d524ca1253f44edaf7feee1b3742668170a36538f7fec0e7a539a6673991ae9be17a1476cff81f150486c2acbaa9802da2d3fb98fa712f', 'seb', 'sebastian', '', '', 'dbe5e7fd62c745ef97e11a1e18ce2a26', 0);
 
 --
--- Begrænsninger for dumpede tabeller
+-- Indexes for dumped tables
 --
 
 --
--- Indeks for tabel `posts`
+-- Indexes for table `likes`
+--
+ALTER TABLE `likes`
+  ADD PRIMARY KEY (`post_fk`,`user_fk`);
+
+--
+-- Indexes for table `posts`
 --
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`post_pk`),
   ADD UNIQUE KEY `post_pk` (`post_pk`);
 
 --
--- Indeks for tabel `trends`
+-- Indexes for table `trends`
 --
 ALTER TABLE `trends`
   ADD UNIQUE KEY `trend_pk` (`trend_pk`);
 
 --
--- Indeks for tabel `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_pk`),
