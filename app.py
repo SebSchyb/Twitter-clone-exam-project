@@ -286,7 +286,11 @@ def profile():
 @x.no_cache
 def api_like_tweet(id):
     try:
-        ic(id)
+        user = session.get("user", "")
+        db, cursor = x.db()
+        q = "INSERT INTO likes VALUES(%s, %s)"
+        cursor.execute(q, (user["user_pk"], id))
+        db.commit()
         button_unlike_tweet = render_template("___button_unlike_tweet.html", tweet_id = id)
         return f"""
             <mixhtml mix-replace="#{id}">
@@ -301,11 +305,11 @@ def api_like_tweet(id):
         if "db" in locals(): db.close()
 
 ##############################
-@app.patch("/unlike-tweet")
+@app.patch("/unlike-tweet/<id>")
 @x.no_cache
 def api_unlike_tweet(id):
     try:
-        ic("test")
+        ic(id)
         button_like_tweet = render_template("___button_like_tweet.html")
         return f"""
             <mixhtml mix-replace="{id}">
