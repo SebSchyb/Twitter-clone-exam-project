@@ -177,7 +177,21 @@ def home():
         user = session.get("user", "")
         if not user: return redirect(url_for("login"))
         db, cursor = x.db()
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 10"
+        # q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 10"
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(likes.user_fk) AS like_count
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes 
+            ON posts.post_pk = likes.post_fk
+        GROUP BY posts.post_pk
+        ORDER BY RAND()
+        LIMIT 20
+        """
         cursor.execute(q)
         tweets = cursor.fetchall()
         ic(tweets)
@@ -185,12 +199,12 @@ def home():
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
         trends = cursor.fetchall()
-        ic(trends)
+        # ic(trends)
 
         q = "SELECT * FROM users WHERE user_pk != %s ORDER BY RAND() LIMIT 3"
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
-        ic(suggestions)
+        # ic(suggestions)
 
         return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
     except Exception as ex:
@@ -243,17 +257,33 @@ def logout():
 @app.get("/home-comp")
 def home_comp():
     try:
-
         user = session.get("user", "")
-        if not user: return "error"
+        if not user:
+            return "error"
+
         db, cursor = x.db()
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 5"
+
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(likes.user_fk) AS like_count
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes 
+            ON posts.post_pk = likes.post_fk
+        GROUP BY posts.post_pk
+        ORDER BY RAND()
+        LIMIT 5
+        """
+
         cursor.execute(q)
         tweets = cursor.fetchall()
-        ic(tweets)
 
         html = render_template("_home_comp.html", tweets=tweets)
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
+
     except Exception as ex:
         ic(ex)
         return "error"
@@ -289,7 +319,7 @@ def api_like_tweet(id):
         user = session.get("user", "")
         db, cursor = x.db()
         q = "INSERT INTO likes VALUES(%s, %s)"
-        cursor.execute(q, (user["user_pk"], id))
+        cursor.execute(q, (id, user["user_pk"]))
         db.commit()
         button_unlike_tweet = render_template("___button_unlike_tweet.html", tweet_id = id)
         return f"""
