@@ -177,7 +177,7 @@ def home():
         user = session.get("user", "")
         if not user: return redirect(url_for("login"))
         db, cursor = x.db()
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 5"
+        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 10"
         cursor.execute(q)
         tweets = cursor.fetchall()
         ic(tweets)
@@ -282,14 +282,34 @@ def profile():
 
 
 ##############################
-@app.patch("/like-tweet")
+@app.patch("/like-tweet/<id>")
 @x.no_cache
-def api_like_tweet():
+def api_like_tweet(id):
     try:
-        button_unlike_tweet = render_template("___button_unlike_tweet.html")
+        ic(id)
+        button_unlike_tweet = render_template("___button_unlike_tweet.html", tweet_id = id)
         return f"""
-            <mixhtml mix-replace="#button_1">
+            <mixhtml mix-replace="#{id}">
                 {button_unlike_tweet}
+            </mixhtml>
+        """
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+##############################
+@app.patch("/unlike-tweet")
+@x.no_cache
+def api_unlike_tweet(id):
+    try:
+        ic("test")
+        button_like_tweet = render_template("___button_like_tweet.html")
+        return f"""
+            <mixhtml mix-replace="{id}">
+                {button_like_tweet}
             </mixhtml>
         """
     except Exception as ex:
