@@ -175,36 +175,35 @@ def signup(lan = "english"):
 def home():
     try:
         user = session.get("user", "")
-        if not user: return redirect(url_for("login"))
+        if not user:
+            return redirect(url_for("login"))
         db, cursor = x.db()
-        # q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 10"
+
         q = """
         SELECT 
             users.*,
             posts.*,
-            COUNT(likes.user_fk) AS like_count
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
         FROM users
         JOIN posts 
             ON users.user_pk = posts.post_user_fk
-        LEFT JOIN likes 
-            ON posts.post_pk = likes.post_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
         GROUP BY posts.post_pk
         ORDER BY RAND()
         LIMIT 20
         """
-        cursor.execute(q)
+        cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
-        ic(tweets)
 
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
         trends = cursor.fetchall()
-        # ic(trends)
 
         q = "SELECT * FROM users WHERE user_pk != %s ORDER BY RAND() LIMIT 3"
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
-        # ic(suggestions)
 
         return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
     except Exception as ex:
@@ -213,6 +212,8 @@ def home():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
 
 ##############################
 @app.route("/verify-account", methods=["GET"])
@@ -257,8 +258,9 @@ def logout():
 @app.get("/home-comp")
 def home_comp():
     try:
+
         user = session.get("user", "")
-        if not user:
+        if not user: 
             return "error"
 
         db, cursor = x.db()
@@ -267,18 +269,18 @@ def home_comp():
         SELECT 
             users.*,
             posts.*,
-            COUNT(likes.user_fk) AS like_count
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
         FROM users
         JOIN posts 
             ON users.user_pk = posts.post_user_fk
-        LEFT JOIN likes 
-            ON posts.post_pk = likes.post_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
         GROUP BY posts.post_pk
         ORDER BY RAND()
         LIMIT 5
         """
-
-        cursor.execute(q)
+        cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
 
         html = render_template("_home_comp.html", tweets=tweets)
@@ -287,8 +289,11 @@ def home_comp():
     except Exception as ex:
         ic(ex)
         return "error"
+
     finally:
-        pass
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
 
 ##############################
@@ -310,6 +315,64 @@ def profile():
         pass
 
 
+
+##############################
+@app.post("/toggle_like")
+def toggle_like():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return jsonify({"error": "not_logged_in"}), 401
+
+        data = request.get_json() or {}
+        post_pk = data.get("post_pk")
+        if not post_pk:
+            return jsonify({"error": "missing_post_pk"}), 400
+
+        db, cursor = x.db()
+
+        # check if the user already liked the post
+        q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s AND user_fk = %s"
+        cursor.execute(q, (post_pk, user["user_pk"]))
+        already = cursor.fetchone()["cnt"] > 0
+
+        if already:
+            # unlike (delete)
+            q = "DELETE FROM likes WHERE post_fk = %s AND user_fk = %s"
+            cursor.execute(q, (post_pk, user["user_pk"]))
+            db.commit()
+            liked = False
+        else:
+            # like (insert)
+            q = "INSERT INTO likes (post_fk, user_fk) VALUES (%s, %s)"
+            try:
+                cursor.execute(q, (post_pk, user["user_pk"]))
+                db.commit()
+            except Exception as e:
+                # handle race/duplicate gracefully
+                db.rollback()
+            liked = True
+
+        # get updated like count
+        q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s"
+        cursor.execute(q, (post_pk,))
+        like_count = cursor.fetchone()["cnt"]
+
+        # safe close
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+        return jsonify({"liked": liked, "like_count": like_count})
+    except Exception as ex:
+        ic(ex)
+        try:
+            if "db" in locals(): db.rollback()
+        except:
+            pass
+        return jsonify({"error": "server_error"}), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 ##############################
 @app.patch("/like-tweet/<id>")
