@@ -513,11 +513,11 @@ def forgot_password():
             if "db" in locals(): db.close()
 ##########
 
-@app.route("/_reset-password/<reset_key>", methods=["GET", "POST"])
+@app.route("/reset-password/<reset_key>", methods=["GET", "POST"])
 def reset_password(reset_key):
 
     if request.method == "GET":
-        return render_template("reset_password.html", reset_key=reset_key)
+        return render_template("_reset_password.html", reset_key=reset_key)
 
     if request.method == "POST":
         try:
@@ -534,7 +534,12 @@ def reset_password(reset_key):
             cursor.execute("""UPDATE users SET user_password=%s, user_reset_key='' WHERE user_pk=%s""", (hashed, user["user_pk"]))
             db.commit()
 
-            return f"<browser mix-redirect='/login'></browser>"
+            toast_success = render_template("___toast_success.html", message="Password updated successfully")
+            return f"""
+            <browser mix-update="#toast">{toast_success}</browser>
+            <browser mix-redirect="/login"></browser>
+            """
+
 
         except Exception as ex:
             toast = render_template("___toast_error.html", message=ex.args[0])
