@@ -226,7 +226,7 @@ main {
             .post-header {
                 font-size: 0.9rem;
                 margin-bottom: 0.3rem;
-
+                position: relative;
                 .name {
                     font-weight: bold;
                     margin-right: 0.3rem;
@@ -236,6 +236,48 @@ main {
                 .time {
                     color: rgb(110, 109, 109);
                     font-size: 0.85rem;
+                }
+                .menu {
+                    position: relative;
+                    float: right;
+                    top: 0;
+                    right: 0;
+                }
+                .edit {
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    cursor: pointer;
+                    padding: 0.3rem;
+                    border-radius: 50%;
+                    transition: background-color 0.2s, color 0.2s;
+                    &:hover {
+                        background-color: rgba(29, 155, 240, 0.1);
+                        color: rgb(29, 155, 240);
+                    }
+                }
+                details div {
+                    cursor: auto;
+                    background: #eee;
+                    padding: 1rem;
+                    width: max-content;
+                    position: absolute;
+                    top: 3rem;
+                    border-radius: 1rem;
+                    right: 0;
+                    z-index: 9999;
+                    &:before {
+                        content: "";
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+                        border-bottom: 12px solid #eee;
+                        top: -10px;
+                        position: absolute;
+                        right: 10px;
+                    }
                 }
             }
 

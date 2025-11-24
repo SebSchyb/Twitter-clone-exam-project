@@ -10,6 +10,4 @@
 
 <div id="posts">
     {% for tweet in tweets: %} {% include "_tweet.html" %} {% endfor %}
-    <!--include script for handling like/unlike-->
-    <script src="{{url_for('static', filename='like.js')}}" defer></script>
 </div>
