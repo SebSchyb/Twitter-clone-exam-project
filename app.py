@@ -84,6 +84,7 @@ def login(lan = "english"):
 
             session["user"] = user
             return f"""<browser mix-redirect="/home"></browser>"""
+        
 
         except Exception as ex:
             ic(ex)
@@ -473,3 +474,72 @@ def get_data_from_sheet():
         return str(ex)
     finally:
         pass
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+
+    if request.method == "GET":
+        return render_template("_forgot_password.html")
+
+    if request.method == "POST":
+        try:
+            user_email = x.validate_user_email()
+
+            db, cursor = x.db()
+            cursor.execute("SELECT * FROM users WHERE user_email=%s", (user_email,))
+            user = cursor.fetchone()
+            if not user:
+                raise Exception("Email not found", 400)
+
+            reset_key = uuid.uuid4().hex
+
+            cursor.execute("UPDATE users SET user_reset_key=%s WHERE user_pk=%s",
+                           (reset_key, user["user_pk"]))
+            db.commit()
+
+            reset_url = f"http://127.0.0.1/reset-password/{reset_key}"
+            email_html = f'To reset your password, click here: <a href="{reset_url}">Reset password</a>'
+            x.send_email(user_email, "Reset your password", email_html)
+
+
+            return f"<browser mix-update='#toast'>Password reset email sent.</browser>"
+
+        except Exception as ex:
+            toast = render_template("___toast_error.html", message=ex.args[0])
+            return f"<browser mix-update='#toast'>{toast}</browser>", 400
+        
+        finally:
+            if "cursor" in locals(): cursor.close()
+            if "db" in locals(): db.close()
+##########
+
+@app.route("/_reset-password/<reset_key>", methods=["GET", "POST"])
+def reset_password(reset_key):
+
+    if request.method == "GET":
+        return render_template("reset_password.html", reset_key=reset_key)
+
+    if request.method == "POST":
+        try:
+            new_password = x.validate_user_password()
+
+            db, cursor = x.db()
+            cursor.execute("SELECT * FROM users WHERE user_reset_key=%s", (reset_key,))
+            user = cursor.fetchone()
+            if not user:
+                raise Exception("Invalid reset link", 400)
+
+            hashed = generate_password_hash(new_password)
+
+            cursor.execute("""UPDATE users SET user_password=%s, user_reset_key='' WHERE user_pk=%s""", (hashed, user["user_pk"]))
+            db.commit()
+
+            return f"<browser mix-redirect='/login'></browser>"
+
+        except Exception as ex:
+            toast = render_template("___toast_error.html", message=ex.args[0])
+            return f"<browser mix-update='#toast'>{toast}</browser>", 400
+
+        finally:
+            if "cursor" in locals(): cursor.close()
+            if "db" in locals(): db.close()

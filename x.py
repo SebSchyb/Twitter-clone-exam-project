@@ -158,8 +158,8 @@ def send_email(to_email, subject, template):
         # Copy the key : pdru ctfd jdhk xxci
 
         # Email and password of the sender's Gmail account
-        sender_email = ""
-        password = ""  # If 2FA is on, use an App Password instead
+        sender_email = "sebschyb.dev@gmail.com"
+        password = "eegt vaob dtvf sclh"  # If 2FA is on, use an App Password instead
 
         # Receiver email address
         receiver_email = to_email

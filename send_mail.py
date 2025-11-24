@@ -1,3 +1,8 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+
 ##############################
 def send_verify_email(to_email, user_verification_key):
     try:
@@ -7,11 +12,11 @@ def send_verify_email(to_email, user_verification_key):
         # Copy the key
 
         # Email and password of the sender's Gmail account
-        sender_email = "YOUR GMAIL HERE"
-        password = "APP PASSWORD HERE"  # If 2FA is on, use an App Password instead
+        sender_email = "sebschyb.dev@gmail.com"
+        password = "eegt vaob dtvf sclh"  # If 2FA is on, use an App Password instead
 
         # Receiver email address
-        receiver_email = "YOUR GMAIL HERE"
+        receiver_email = to_email
         
         # Create the email message
         message = MIMEMultipart()
@@ -36,3 +41,33 @@ def send_verify_email(to_email, user_verification_key):
         raise_custom_exception("cannot send email", 500)
     finally:
         pass
+
+    def send_reset_email(to_email, reset_key):
+        try:
+            sender_email = "sebschyb.dev@gmail.com"
+            password = "eegt vaob dtvf sclh"
+
+            receiver_email = to_email
+            
+            message = MIMEMultipart()
+            message["From"] = "twitter"
+            message["To"] = receiver_email
+            message["Subject"] = "Reset your password"
+
+            reset_url = f"http://127.0.0.1/reset-password/{reset_key}"
+
+            body = f"""
+            To reset your password, please 
+            <a href="{reset_url}">click here</a>.
+            """
+            message.attach(MIMEText(body, "html"))
+
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(sender_email, password)
+                server.sendmail(sender_email, receiver_email, message.as_string())
+
+            return "email sent"
+
+        except Exception as ex:
+            raise_custom_exception("cannot send email", 500)
