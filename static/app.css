@@ -643,3 +643,213 @@ aside {
 .x-dialog__alt a:hover {
     text-decoration: underline;
 }
+.x-auth-page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+    padding: 1.5rem;
+}
+
+.x-auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid rgb(230, 230, 230);
+    padding: 2rem 2.2rem;
+    box-shadow: 0 8px 24px rgba(15, 20, 25, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.x-auth-card__header {
+    text-align: left;
+}
+
+.x-auth-card__logo {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.x-auth-card__header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+}
+
+.x-auth-card__header p {
+    font-size: 0.9rem;
+    color: rgb(83, 100, 113);
+}
+
+.x-auth-card__footer {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.x-auth-card__footer a {
+    color: rgb(29, 155, 240);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.x-auth-card__footer a:hover {
+    text-decoration: underline;
+}
+
+.x-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.x-auth-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.x-auth-form__group label {
+    font-size: 0.8rem;
+    color: rgb(83, 100, 113);
+}
+
+.x-auth-form__group label span {
+    color: rgb(15, 20, 25);
+}
+
+.x-auth-form__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgb(207, 217, 222);
+    background: #f7f9f9;
+    transition: border-color 0.15s ease, background-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.x-auth-form__input-wrap:focus-within {
+    border-color: rgb(29, 155, 240);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(29, 155, 240, 0.2);
+}
+
+.x-auth-form__icon {
+    font-size: 0.95rem;
+    color: rgb(83, 100, 113);
+    min-width: 1rem;
+    text-align: center;
+}
+
+.x-auth-form__input-wrap input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    font-size: 0.95rem;
+    padding: 0;
+}
+
+.x-auth-form__btn {
+    width: 100%;
+    border-radius: 999px;
+    background-color: rgb(15, 20, 25);
+    color: #ffffff;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.15s ease, transform 0.05s ease,
+        box-shadow 0.1s ease;
+}
+
+.x-auth-form__btn i {
+    font-size: 0.95rem;
+}
+
+.x-auth-form__btn:hover {
+    background-color: rgb(39, 44, 48);
+}
+
+.x-auth-form__btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(15, 20, 25, 0.3);
+}
+
+.x-toast {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    padding: 0.65rem 0.9rem;
+    background: #f7f9f9;
+    border: 1px solid rgb(207, 217, 222);
+    color: rgb(15, 20, 25);
+    display: none;
+}
+
+.x-toast.toast--success {
+    display: block;
+    border-color: #00ba7c;
+    background: rgba(0, 186, 124, 0.1);
+    color: #00553b;
+}
+
+.x-toast.toast--error {
+    display: block;
+    border-color: #f4212e;
+    background: rgba(244, 33, 46, 0.08);
+    color: #661018;
+}
+
+.x-toast.toast--info {
+    display: block;
+    border-color: rgb(29, 155, 240);
+    background: rgba(29, 155, 240, 0.08);
+    color: #0b4d80;
+}
+
+@media (max-width: 600px) {
+    .x-auth-card {
+        padding: 1.5rem 1.3rem;
+        border-radius: 1.2rem;
+    }
+
+    .x-auth-card__header h1 {
+        font-size: 1.35rem;
+    }
+
+    .x-auth-page {
+        padding: 1rem;
+    }
+}
+.x-auth-success__actions {
+    margin-top: 1rem;
+}
+
+.x-auth-page--success .x-auth-card__header {
+    text-align: center;
+}
+
+.x-auth-page--success .x-auth-card__header h1 {
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+}
+
+.x-auth-page--success .x-auth-card__header p {
+    color: rgb(83, 100, 113);
+}

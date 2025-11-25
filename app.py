@@ -534,16 +534,12 @@ def reset_password(reset_key):
             cursor.execute("""UPDATE users SET user_password=%s, user_reset_key='' WHERE user_pk=%s""", (hashed, user["user_pk"]))
             db.commit()
 
-            toast_success = render_template("___toast_success.html", message="Password updated successfully")
-            return f"""
-            <browser mix-update="#toast">{toast_success}</browser>
-            <browser mix-redirect="/login"></browser>
-            """
+            return render_template("_password_reset_succes.html")
 
 
         except Exception as ex:
             toast = render_template("___toast_error.html", message=ex.args[0])
-            return f"<browser mix-update='#toast'>{toast}</browser>", 400
+            return f"<browser mix-bottom='#toast'>{toast}</browser>", 400
 
         finally:
             if "cursor" in locals(): cursor.close()
