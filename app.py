@@ -282,8 +282,8 @@ def home_comp():
         """
         cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
-
-        html = render_template("_home_comp.html", tweets=tweets)
+        ic(tweets)
+        html = render_template("_home_comp.html", tweets=tweets, user=user)
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
 
     except Exception as ex:
@@ -421,9 +421,9 @@ def api_unlike_tweet(id):
 @app.route("/api-create-post", methods=["POST"])
 def api_create_post():
     try:
-        user = session.get("user", "")
+        user = session.get("user", "")   
         if not user: return "invalid user"
-        user_pk = user["user_pk"]        
+        user_pk = user["user_pk"]   
         post = x.validate_post(request.form.get("post", ""))
         post_pk = uuid.uuid4().hex
         post_image_path = ""
@@ -438,9 +438,10 @@ def api_create_post():
             "user_username": user["user_username"],
             "user_avatar_path": user["user_avatar_path"],
             "post_message": post,
+            "liked": None,
         }
         html_post_container = render_template("___post_container.html")
-        html_post = render_template("_tweet.html", tweet=tweet)
+        html_post = render_template("_tweet.html", tweet=tweet, user=user)
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-top="#posts">{html_post}</browser>

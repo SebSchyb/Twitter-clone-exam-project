@@ -11,6 +11,7 @@
             </span>
             <span class="handle">@{{ tweet.user_username }}</span> ·
             <span class="time">1d</span>
+            {% if tweet.post_user_fk == user.user_pk: %}
             <details class="menu">
                 <summary class="edit">
                     <i class="fa-solid fa-ellipsis"></i>
@@ -21,6 +22,7 @@
                     <button class="delete">Delete</button>
                 </div>
             </details>
+            {% endif %}
         </div>
         <p class="text">{{ tweet.post_message }}</p>
         {% if tweet.post_image_path: %}
