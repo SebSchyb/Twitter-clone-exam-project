@@ -1,4 +1,4 @@
-<article class="post">
+<article class="post tweet" id="tweet-{{tweet.post_pk}}">
     <img
         src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
         alt="Profile Picture"
@@ -11,6 +11,8 @@
             </span>
             <span class="handle">@{{ tweet.user_username }}</span> ·
             <span class="time">1d</span>
+            <!--Render only if users own tweet-->
+
             {% if tweet.post_user_fk == user.user_pk: %}
             <details class="menu">
                 <summary class="edit">
@@ -18,13 +20,23 @@
                 </summary>
 
                 <div>
-                    <button>Edit</button>
-                    <button class="delete">Delete</button>
+                    <button data-post="{{tweet.post_pk}}" class="edit-btn">
+                        Edit
+                    </button>
+                    <button
+                        data-post="{{tweet.post_pk}}"
+                        class="delete delete-btn"
+                        mix-delete="/api-delete-post/{{tweet.post_pk}}"
+                    >
+                        Delete
+                    </button>
                 </div>
             </details>
             {% endif %}
         </div>
-        <p class="text">{{ tweet.post_message }}</p>
+        <p class="text" id="text-{{ tweet.post_pk }}">
+            {{ tweet.post_message }}
+        </p>
         {% if tweet.post_image_path: %}
         <img
             src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}"

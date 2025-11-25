@@ -374,47 +374,114 @@ def toggle_like():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
+
+
 ##############################
-@app.patch("/like-tweet/<id>")
-@x.no_cache
-def api_like_tweet(id):
+@app.patch("/api-edit-post/<post_pk>")
+def api_edit_post(post_pk):
     try:
         user = session.get("user", "")
+        if not user:
+            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        data = request.get_json() or {}
+        message = data.get("message", "").strip()
+
+        if not (1 <= len(message) <= x.POST_MAX_LEN):
+            toast_error = render_template("___toast_error.html", message="Invalid post length")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
         db, cursor = x.db()
-        q = "INSERT INTO likes VALUES(%s, %s)"
-        cursor.execute(q, (id, user["user_pk"]))
+
+        # Verify ownership
+        q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        row = cursor.fetchone()
+
+        if not row:
+            toast_error = render_template("___toast_error.html", message="Post not found")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        if row["post_user_fk"] != user["user_pk"]:
+            toast_error = render_template("___toast_error.html", message="You cannot edit this post")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # Update post
+        q = "UPDATE posts SET post_message = %s WHERE post_pk = %s"
+        cursor.execute(q, (message, post_pk))
         db.commit()
-        button_unlike_tweet = render_template("___button_unlike_tweet.html", tweet_id = id)
+
+        toast_ok = render_template("___toast_ok.html", message="Post updated")
+
         return f"""
-            <mixhtml mix-replace="#{id}">
-                {button_unlike_tweet}
-            </mixhtml>
+            <browser mix-replace="#text-{post_pk}">{message}</browser>
+            <browser mix-bottom="#toast">{toast_ok}</browser>
         """
+
     except Exception as ex:
         ic(ex)
-        return "error"
+        if "db" in locals(): db.rollback()
+
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
+
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+
 ##############################
-@app.patch("/unlike-tweet/<id>")
-@x.no_cache
-def api_unlike_tweet(id):
+@app.delete("/api-delete-post/<post_pk>")
+def api_delete_post(post_pk):
     try:
-        ic(id)
-        button_like_tweet = render_template("___button_like_tweet.html")
+        user = session.get("user", "")
+        if not user:
+            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        db, cursor = x.db()
+
+        # Verify ownership
+        q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        row = cursor.fetchone()
+
+        if not row:
+            toast_error = render_template("___toast_error.html", message="Post not found")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        if row["post_user_fk"] != user["user_pk"]:
+            toast_error = render_template("___toast_error.html", message="You cannot delete this post")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # Delete post
+        q = "DELETE FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        db.commit()
+
+        toast_ok = render_template("___toast_ok.html", message="Post deleted")
+        html_post_container = render_template("___post_container.html")
         return f"""
-            <mixhtml mix-replace="{id}">
-                {button_like_tweet}
-            </mixhtml>
+            <browser mix-remove="#tweet-{post_pk}"></browser>
+            <browser mix-bottom="#toast">{toast_ok}</browser>
+            <browser mix-replace="#post_container">{html_post_container}</browser>
         """
+
     except Exception as ex:
         ic(ex)
-        return "error"
+        if "db" in locals(): db.rollback()
+
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
+
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
+
 
 
 ##############################
