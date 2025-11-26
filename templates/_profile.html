@@ -30,7 +30,15 @@
 </form>
 
 <form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-post>
-    <button class="x-dialog__btn" mix-default="Delete profile" mix-await="Deleting profile ...">
+    <button type="button" class="x-dialog__btn x-dialog__btn--danger" mix-default="Delete profile"
+        mix-await="Deleting profile ..." onclick="
+            let value = prompt('Type DELETE to confirm profile deletion:');
+            if (value === 'DELETE') {
+                this.closest('form').requestSubmit();
+            } else {
+                alert('Profile deletion cancelled');
+            }
+        ">
         Delete profile
     </button>
 </form>
