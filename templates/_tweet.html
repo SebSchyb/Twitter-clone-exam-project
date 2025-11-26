@@ -32,6 +32,39 @@
                     </button>
                 </div>
             </details>
+            <!-- EDIT MODAL -->
+            <div id="editModal-{{tweet.post_pk}}" class="modal hidden">
+                <div class="modal-content">
+                    <span id="closeEditModal-{{tweet.post_pk}}" class="close"
+                        >&times;</span
+                    >
+
+                    <h2>Edit Post</h2>
+                    <form
+                        id="editForm-{{tweet.post_pk}}"
+                        action="/api-edit-post/{{tweet.post_pk}}"
+                        mix-patch
+                    >
+                        <!-- <input type="hidden" id="editPostId" /> -->
+                        <textarea
+                            class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
+                            id="editText-{{tweet.post_pk}}"
+                            rows="5"
+                            name="message"
+                        >
+{{ tweet.post_message }}</textarea
+                        >
+
+                        <button
+                            class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
+                            type="submit"
+                        >
+                            Update Post
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             {% endif %}
         </div>
         <p class="text" id="text-{{ tweet.post_pk }}">

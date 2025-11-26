@@ -113,69 +113,70 @@ document.addEventListener("click", async function (event) {
     //
     // DELETE POST
     //
-    // const del = event.target.closest(".delete-btn");
-    // if (del) {
-    //     event.preventDefault();
+    const del = event.target.closest(".delete-btn");
+    if (del) {
+        event.preventDefault();
 
-    //     const postPk = del.dataset.post;
+        const postPk = del.dataset.post;
 
-    //     // Simple confirmation popup
-    //     if (!confirm("Are you sure you want to delete your post?")) return;
+        // Simple confirmation popup
+        if (!confirm("Are you sure you want to delete your post?")) return;
 
-    //     // Send DELETE request
-    //     const resp = await fetch(`/api-delete-post/${postPk}`, {
-    //         method: "DELETE",
-    //     });
+        // Send DELETE request
+        const resp = await fetch(`/api-delete-post/${postPk}`, {
+            method: "DELETE",
+        });
+        const data = await resp.text();
+        console.log(data);
 
-    //     // Read the HTML (mixhtml instructions)
-    //     const html = await resp.text();
+        // const respGet = await fetch(`/home-comp`, {
+        //     method: "GET",
+        // });
+        // console.log(await respGet.text());
+        // // Read the HTML (mixhtml instructions)
+        // const html = await resp.text();
 
-    //     // Inject into DOM so mixhtml reacts to <browser> tags
-    //     const temp = document.createElement("div");
-    //     temp.innerHTML = html;
-    //     document.body.appendChild(temp);
+        // // Inject into DOM so mixhtml reacts to <browser> tags
+        // const temp = document.createElement("div");
+        // temp.innerHTML = html;
+        // document.body.appendChild(temp);
 
-    //     // mixhtml processes the <browser> elements immediately
-    //     temp.remove();
+        // // mixhtml processes the <browser> elements immediately
+        // temp.remove();
 
-    //     return;
-    // }
+        return;
+    }
 
     //
     // EDIT POST
     //
-    const edit = event.target.closest(".edit-btn");
-    if (edit) {
-        event.preventDefault();
+    // const edit = event.target.closest(".edit-btn");
+    // if (edit) {
+    //     event.preventDefault();
 
-        const postPk = edit.dataset.post;
-        const textEl = document.querySelector(`#text-${postPk}`);
-        const oldText = textEl.textContent.trim();
+    //     const postPk = edit.dataset.post;
+    //     const textEl = document.querySelector(`#text-${postPk}`);
+    //     const oldText = textEl.textContent.trim();
 
-        // Ask user for updated text
-        const newText = prompt("Edit your post:", oldText);
-        if (newText === null) return; // User cancelled
-        if (!newText.trim()) return; // Empty input not allowed
+    //     // Ask user for updated text
+    //     const newText = prompt("Edit your post:", oldText);
+    //     if (newText === null) return; // User cancelled
+    //     if (!newText.trim()) return; // Empty input not allowed
 
-        // Send PATCH with JSON
-        const resp = await fetch(`/api-edit-post/${postPk}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: newText }),
-        });
+    //     // Send PATCH with JSON
+    //     const resp = await fetch(`/api-edit-post/${postPk}`, {
+    //         method: "PATCH",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({ message: newText }),
+    //     });
 
-        // Read the HTML mixhtml response
-        const html = await resp.text();
-        console.log(html);
-        // Inject so mixhtml can run <browser mix-replace="#text-...">
-        const temp = document.createElement("div");
-        temp.innerHTML = html;
-        document.body.appendChild(temp);
+    //     // const respGet = await fetch(`/home-comp`, {
+    //     //     method: "GET",
+    //     // });
+    //     // console.log(await respGet.text());
 
-        temp.remove();
-
-        return;
-    }
+    //     return;
+    // }
 });
 
 // Close details when clicking
@@ -187,3 +188,42 @@ document.addEventListener("click", (e) => {
         }
     });
 });
+
+document.addEventListener("click", function (e) {
+    // If an edit button is clicked
+    if (e.target.classList.contains("edit-btn")) {
+        const postId = e.target.dataset.post;
+
+        // Set hidden input so backend knows what to update
+        // document.getElementById(`editPostId`).value = postId;
+
+        // OPTIONAL: Load existing content dynamically (Ajax or template)
+        // document.getElementById("editText").value = ... ;
+
+        // Show modal
+        document
+            .getElementById(`editModal-${postId}`)
+            .classList.remove("hidden");
+    }
+});
+
+function closeAllModals() {
+    document.querySelectorAll(".modal").forEach((modal) => {
+        modal.classList.add("hidden");
+    });
+}
+// CLOSE when clicking the close button (ANY modal)
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("close")) {
+        closeAllModals();
+    }
+});
+
+// CLOSE when clicking OUTSIDE any modal-content
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("modal")) {
+        closeAllModals();
+    }
+});
+
+document.addEventListener("submit", (e) => closeAllModals());

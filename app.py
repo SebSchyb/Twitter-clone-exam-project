@@ -282,7 +282,7 @@ def home_comp():
         """
         cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
-        ic(tweets)
+        ic("home-comp fired")
         html = render_template("_home_comp.html", tweets=tweets, user=user)
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
 
@@ -381,21 +381,24 @@ def toggle_like():
 @app.patch("/api-edit-post/<post_pk>")
 def api_edit_post(post_pk):
     try:
+        # User must be logged in
         user = session.get("user", "")
         if not user:
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        data = request.get_json() or {}
-        message = data.get("message", "").strip()
+        # FormData input (NOT JSON)
+        message = request.form.get("message", "").strip()
 
+        # Validate message length
         if not (1 <= len(message) <= x.POST_MAX_LEN):
             toast_error = render_template("___toast_error.html", message="Invalid post length")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
+        # DB connection
         db, cursor = x.db()
 
-        # Verify ownership
+        # Ownership check
         q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         row = cursor.fetchone()
@@ -413,23 +416,29 @@ def api_edit_post(post_pk):
         cursor.execute(q, (message, post_pk))
         db.commit()
 
+        # Toast + re-render post container
         toast_ok = render_template("___toast_ok.html", message="Post updated")
+        html_post_container = render_template("___post_container.html")
 
         return f"""
             <browser mix-replace="#text-{post_pk}">{message}</browser>
             <browser mix-bottom="#toast">{toast_ok}</browser>
+            <browser mix-replace="#post_container">{html_post_container}</browser>
         """
 
     except Exception as ex:
         ic(ex)
-        if "db" in locals(): db.rollback()
-
+        if "db" in locals():
+            db.rollback()
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
 
     finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
+        if "cursor" in locals():
+            cursor.close()
+        if "db" in locals():
+            db.close()
+
 
 
 ##############################
@@ -482,8 +491,6 @@ def api_delete_post(post_pk):
 
 
 
-
-
 ##############################
 @app.route("/api-create-post", methods=["POST"])
 def api_create_post():
@@ -500,6 +507,9 @@ def api_create_post():
         db.commit()
         toast_ok = render_template("___toast_ok.html", message="The world is reading your post !")
         tweet = {
+            "post_pk": post_pk,
+            "user_pk": user_pk,
+            "post_user_fk": user_pk,
             "user_first_name": user["user_first_name"],
             "user_last_name": user["user_last_name"],
             "user_username": user["user_username"],
