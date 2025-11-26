@@ -68,11 +68,12 @@ def login(lan = "english"):
             user_email = x.validate_user_email(lan)
             user_password = x.validate_user_password(lan)
             # Connect to the database
-            q = "SELECT * FROM users WHERE user_email = %s"
+            q = "SELECT * FROM users WHERE user_email = %s AND user_is_active = 1"
             db, cursor = x.db()
             cursor.execute(q, (user_email,))
             user = cursor.fetchone()
-            if not user: raise Exception(dictionary.user_not_found[lan], 400)
+            if not user: 
+                raise Exception(dictionary.user_not_found[lan], 400)
 
             if not check_password_hash(user["user_password"], user_password):
                 raise Exception(dictionary.invalid_credentials[lan], 400)
@@ -102,7 +103,29 @@ def login(lan = "english"):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
+@app.post("/api_delete_profile")
+def api_delete_profile():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "error", 400
 
+        db, cursor = x.db()
+
+        q = "UPDATE users SET user_is_active = 0 WHERE user_pk = %s"
+        cursor.execute(q, (user["user_pk"],))
+        db.commit()
+
+        session.clear()
+        return """<browser mix-redirect="/login"></browser>"""
+        
+    except Exception as ex:
+        ic(ex)
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 
 ##############################
