@@ -1,0 +1,23 @@
+<article class="comment post" id="">
+    <img
+        src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+        alt="Profile Picture"
+        class="w-8 h-8 rounded-full"
+    />
+    <div class="post-content">
+        <div class="post-header">
+            <span class="name">
+                <!-- {{ comment.user_first_name }} {{ comment.user_last_name }} -->
+                Commenter
+            </span>
+            <span class="handle"
+                >@<!--{{ comment.user_username }}-->Handle</span
+            >
+            ·
+            <span class="time">1d</span>
+        </div>
+        <p class="text" id="text-{{ tweet.post_pk }}">
+            <!--{{ comment.post_message }}-->Comment
+        </p>
+    </div>
+</article>

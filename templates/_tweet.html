@@ -89,3 +89,29 @@
         </div>
     </div>
 </article>
+<form
+    class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md"
+    mix-post="/api-create-comment/{{tweet.post_pk}}"
+>
+    <img
+        src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+        alt="Profile Picture"
+        class="w-8 h-8 rounded-full"
+    />
+    <textarea
+        name="comment"
+        id=""
+        class="w-full pa-2"
+        placeholder="Post your reply"
+        rows="1"
+    ></textarea>
+    <button
+        class="w-auto m-auto bg-c-transparent text-c-black[40] border-1 border-s-solid border-c-black[40] py-2 px-6 rounded-xl cursor-pointer"
+        type="submit"
+    >
+        Reply
+    </button>
+</form>
+<div class="comments pa-2 border-b-4 border-c-[#e6e6e6]">
+    {% include "__comment.html" %}
+</div>

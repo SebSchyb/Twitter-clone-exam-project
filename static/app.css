@@ -23,6 +23,9 @@ a {
 p {
     line-height: 1.4rem;
 }
+textarea {
+    resize: none;
+}
 
 #container {
     display: grid;
@@ -206,7 +209,7 @@ main {
         display: flex;
         gap: 1rem;
         padding: 1rem;
-        border-bottom: 1px solid rgb(230, 230, 230);
+        /* border-bottom: 1px solid rgb(230, 230, 230); */
         cursor: pointer;
         transition: background-color 0.2s;
 
@@ -336,6 +339,18 @@ main {
                 }
             }
         }
+    }
+    .comments {
+        padding: 1rem;
+        border-bottom: 1px solid rgb(230, 230, 230);
+        .comment {
+            display: flex;
+        }
+    }
+    .post-comment {
+        border-bottom: 1px solid rgb(230, 230, 230);
+        /* border-left: 1px solid rgb(230, 230, 230);
+        border-right: 1px solid rgb(230, 230, 230); */
     }
 }
 

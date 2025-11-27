@@ -205,7 +205,7 @@ def home():
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
 
-        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
+        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user, comment="0")
     except Exception as ex:
         ic(ex)
         return "error"
@@ -537,6 +537,28 @@ def api_create_post():
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()    
+
+##############################
+@app.post("/api-create-comment/<post_pk>")
+def api_create_comment(post_pk):
+    try:
+        user = session.get("user", "")   
+        if not user: return "invalid user"
+        db, cursor = x.db()
+        user_pk = user["user_pk"]  
+        comment_pk = uuid.uuid4().hex
+        comment = x.validate_post(request.form.get("comment", "").strip())
+        q = "INSERT INTO comments VALUES(%s, %s, %s, %s)"
+        cursor.execute(q, (comment_pk, user_pk, post_pk, comment))
+        db.commit()
+        ic(comment)
+        return "succes"
+    except Exception as ex:
+        ic(ex)
+        return "error"
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()    
