@@ -505,7 +505,7 @@ def api_create_post():
         q = "INSERT INTO posts VALUES(%s, %s, %s, %s, %s)"
         cursor.execute(q, (post_pk, user_pk, post, 0, post_image_path))
         db.commit()
-        toast_ok = render_template("___toast_ok.html", message="The world is reading your post !")
+        toast_ok = render_template("___toast_ok.html", message="The world is reading your post!")
         tweet = {
             "post_pk": post_pk,
             "user_pk": user_pk,
@@ -555,10 +555,20 @@ def api_create_comment(post_pk):
         cursor.execute(q, (comment_pk, user_pk, post_pk, comment))
         db.commit()
         ic(comment)
-        return "succes"
+        toast_ok = render_template("___toast_ok.html", message="The world is reading your comment!")
+        html_post_container = render_template("___post_container.html")
+        return f"""
+        <browser mix-bottom="#toast">{ toast_ok }</browser>
+        <browser mix-replace="#post_container">{html_post_container}</browser>
+        """
     except Exception as ex:
-        ic(ex)
-        return "error"
+        if "x-error post" in str(ex):
+            toast_error = render_template("___toast_error.html", message=f"Comment - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # System or developer error
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()    

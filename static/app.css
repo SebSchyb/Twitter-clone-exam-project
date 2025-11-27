@@ -345,6 +345,11 @@ main {
         border-bottom: 1px solid rgb(230, 230, 230);
         .comment {
             display: flex;
+            opacity: 0.9;
+            transition: all 200ms ease;
+            &:hover {
+                opacity: 1;
+            }
         }
     }
     .post-comment {
