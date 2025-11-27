@@ -300,19 +300,53 @@ def home_comp():
 @app.get("/profile")
 def profile():
     try:
-        user = session.get("user", "")
-        if not user: return "error"
-        q = "SELECT * FROM users WHERE user_pk = %s"
+        session_user = session.get("user", "")
+        if not session_user:
+            return redirect(url_for("login"))
+
         db, cursor = x.db()
-        cursor.execute(q, (user["user_pk"],))
+
+        # Get the full user row from DB
+        q_user = "SELECT * FROM users WHERE user_pk = %s"
+        cursor.execute(q_user, (session_user["user_pk"],))
         user = cursor.fetchone()
-        profile_html = render_template("_profile.html", x=x, user=user)
-        return f"""<browser mix-update="main">{ profile_html }</browser>"""
+        if not user:
+            return "error"
+
+        # Get THIS user's posts
+        q_posts = """
+            SELECT *
+            FROM posts
+            JOIN users ON user_pk = post_user_fk
+            WHERE post_user_fk = %s
+            ORDER BY post_pk DESC
+        """
+        cursor.execute(q_posts, (user["user_pk"],))
+        tweets = cursor.fetchall()
+
+        # Only the content that should go inside #main_content
+        profile_html = render_template("_profile.html", user=user, tweets=tweets)
+
+        # 🔴 IMPORTANT: now we update #main_content, not "main"
+        return f"""<browser mix-update="#main_content">{ profile_html }</browser>"""
+
     except Exception as ex:
         ic(ex)
         return "error"
     finally:
-        pass
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -386,31 +420,44 @@ def api_create_post():
 ##############################
 @app.route("/api-update-profile", methods=["POST"])
 def api_update_profile():
-
     try:
-
         user = session.get("user", "")
         if not user: return "invalid user"
 
-        # Validate
         user_email = x.validate_user_email()
         user_username = x.validate_user_username()
         user_first_name = x.validate_user_first_name()
+        user_bio = request.form.get("user_bio", "").strip()
+        user_avatar_path = request.form.get("user_avatar_path", "").strip()
 
-        # Connect to the database
-        q = "UPDATE users SET user_email = %s, user_username = %s, user_first_name = %s WHERE user_pk = %s"
         db, cursor = x.db()
-        cursor.execute(q, (user_email, user_username, user_first_name, user["user_pk"]))
+        q = """
+            UPDATE users
+            SET user_email = %s,
+                user_username = %s,
+                user_first_name = %s,
+                user_bio = %s,
+                user_avatar_path = %s
+            WHERE user_pk = %s
+        """
+        cursor.execute(q, (
+            user_email,
+            user_username,
+            user_first_name,
+            user_bio,
+            user_avatar_path,
+            user["user_pk"]
+        ))
         db.commit()
 
-        # Response to the browser
         toast_ok = render_template("___toast_ok.html", message="Profile updated successfully")
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-update="#profile_tag .name">{user_first_name}</browser>
-            <browser mix-update="#profile_tag .handle">{user_username}</browser>
-            
+            <browser mix-update="#profile_tag .handle">@{user_username}</browser>
+            <browser mix-update="#profile_bio">{user_bio}</browser>
         """, 200
+    
     except Exception as ex:
         ic(ex)
         # User errors

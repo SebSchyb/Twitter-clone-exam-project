@@ -1,44 +1,104 @@
-<h1>
-    PROFILE
-</h1>
+{# templates/_profile.html #}
 
-<form class="x-dialog__form" action="{{ url_for('api_update_profile') }}" mix-post autocomplete="off">
-    <div>
-        <label for="user_email">
-            <span>Email</span>
-        </label>
-        <input name="user_email" id="user_email" type="text" mix-check="{{ x.REGEX_EMAIL }}"
-            value="{{ user.user_email }}">
-    </div>
-    <div>
-        <label for="user_username">
-            <span>Username</span> - {{ x.USER_USERNAME_MIN }} to {{ x.USER_USERNAME_MAX }} characters
-        </label>
-        <input name="user_username" id="user_username" type="text" mix-check="{{ x.REGEX_USER_USERNAME }}"
-            value="{{ user.user_username }}">
-    </div>
-    <div>
-        <label for="user_first_name">
-            <span>User first name</span> - {{ x.USER_FIRST_NAME_MIN }} to {{ x.USER_FIRST_NAME_MAX }} characters
-        </label>
-        <input name="user_first_name" id="user_first_name" type="text" mix-check="{{ x.REGEX_USER_USERNAME }}"
-            value="{{ user.user_first_name }}">
-    </div>
-    <button class="x-dialog__btn" mix-default="Update profile" mix-await="Updating profile ...">
-        Update profile
-    </button>
-</form>
+<section class="profile-page">
 
-<form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-post>
-    <button type="button" class="x-dialog__btn x-dialog__btn--danger" mix-default="Delete profile"
-        mix-await="Deleting profile ..." onclick="
-            let value = prompt('Type DELETE to confirm profile deletion:');
-            if (value === 'DELETE') {
-                this.closest('form').requestSubmit();
-            } else {
-                alert('Profile deletion cancelled');
-            }
-        ">
-        Delete profile
-    </button>
-</form>
+    <!-- Header: banner + avatar + main info -->
+    <header class="profile-header">
+        <div class="profile-banner"></div>
+
+        <div class="profile-avatar-wrapper">
+            <img src="{{ url_for('static', filename='images/' ~ (user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
+                alt="Profile picture" class="profile-avatar" />
+        </div>
+
+        <div class="profile-header-main">
+            <div class="profile-header-row">
+                <div>
+                    <h1 class="profile-name">
+                        {{ user.user_first_name }} {{ user.user_last_name }}
+                    </h1>
+                    <p class="profile-username">@{{ user.user_username }}</p>
+                </div>
+
+                <!-- Edit profile button + form -->
+                <details class="profile-edit">
+                    <summary class="btn btn-edit-profile">
+                        <i class="fa fa-pencil"></i>
+                        <span>Edit profile</span>
+                    </summary>
+
+                    <form mix-post="/api-update-profile" class="profile-edit-form">
+
+                        <label class="profile-field">
+                            <span>First name</span>
+                            <input type="text" name="user_first_name" value="{{ user.user_first_name }}" required>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Username</span>
+                            <input type="text" name="user_username" value="{{ user.user_username }}" required>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Email</span>
+                            <input type="email" name="user_email" value="{{ user.user_email }}" required>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Bio</span>
+                            <textarea name="user_bio" rows="3">{{ user.user_bio or "" }}</textarea>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Avatar filename (in /static/images)</span>
+                            <input type="text" name="user_avatar_path" value="{{ user.user_avatar_path or "" }}">
+                        </label>
+
+                        <button type="submit" class="btn btn-save-profile">
+                            Save
+                        </button>
+                    </form>
+                </details>
+            </div>
+
+            {% if user.user_bio %}
+            <p id="profile_bio" class="profile-bio">
+                {{ user.user_bio }}
+            </p>
+            {% endif %}
+
+            <!-- Fake meta / stats placeholders (hardcoded / backend later) -->
+            <div class="profile-meta">
+                <span>
+                    <i class="fa fa-calendar"></i>
+                    Joined {{ user.user_created_at|default("January 2024") }}
+                </span>
+            </div>
+
+            <div class="profile-stats">
+                <span><strong>123</strong> Following</span>
+                <span><strong>456</strong> Followers</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+        <button class="profile-tab active">Posts</button>
+        <button class="profile-tab" disabled>Replies</button>
+        <button class="profile-tab" disabled>Media</button>
+        <button class="profile-tab" disabled>Likes</button>
+    </div>
+
+    <!-- Timeline -->
+    <section id="posts" class="profile-timeline">
+        {% for tweet in tweets: %}
+        {% include "_tweet.html" %}
+        {% else %}
+        <p class="profile-empty-state">
+            You haven't posted anything yet.
+        </p>
+        {% endfor %}
+    </section>
+
+</section>
