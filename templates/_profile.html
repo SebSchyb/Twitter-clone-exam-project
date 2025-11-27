@@ -1,8 +1,6 @@
 {# templates/_profile.html #}
 
 <section class="profile-page">
-
-    <!-- Header: banner + avatar + main info -->
     <header class="profile-header">
         <div class="profile-banner"></div>
 
@@ -19,8 +17,6 @@
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
-
-                <!-- Edit profile button + form -->
                 <details class="profile-edit">
                     <summary class="btn btn-edit-profile">
                         <i class="fa fa-pencil"></i>
@@ -67,7 +63,7 @@
             </p>
             {% endif %}
 
-            <!-- Fake meta / stats placeholders (hardcoded / backend later) -->
+            <!-- falske tabs, bare så det ser rigtigt flot ud -->
             <div class="profile-meta">
                 <span>
                     <i class="fa fa-calendar"></i>
@@ -82,7 +78,6 @@
         </div>
     </header>
 
-    <!-- Tabs -->
     <div class="profile-tabs">
         <button class="profile-tab active">Posts</button>
         <button class="profile-tab" disabled>Replies</button>
@@ -90,7 +85,6 @@
         <button class="profile-tab" disabled>Likes</button>
     </div>
 
-    <!-- Timeline -->
     <section id="posts" class="profile-timeline">
         {% for tweet in tweets: %}
         {% include "_tweet.html" %}
