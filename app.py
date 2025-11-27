@@ -111,7 +111,18 @@ def api_delete_profile():
             return "error", 400
 
         db, cursor = x.db()
+        #verify dinmor
+        q = "SELECT user_pk FROM users WHERE user_pk = %s"
+        cursor.execute(q, (user["user_pk"],))
+        row = cursor.fetchone()
 
+        if not row: 
+            toast_error = render_template("_toast_error.html", message="din mor er en hund")
+            return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
+        if row["user_pk"]!=user["user_pk"]:
+            toast_error = render_template("_toast_error.html", message="det kan du ikke")
+            return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
+        
         q = "UPDATE users SET user_is_active = 0 WHERE user_pk = %s"
         cursor.execute(q, (user["user_pk"],))
         db.commit()
