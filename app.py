@@ -410,14 +410,12 @@ def profile():
 
         db, cursor = x.db()
 
-        # Get the full user row from DB
         q_user = "SELECT * FROM users WHERE user_pk = %s"
         cursor.execute(q_user, (session_user["user_pk"],))
         user = cursor.fetchone()
         if not user:
             return "error"
 
-        # Get THIS user's posts
         q_posts = """
             SELECT *
             FROM posts
@@ -428,10 +426,8 @@ def profile():
         cursor.execute(q_posts, (user["user_pk"],))
         tweets = cursor.fetchall()
 
-        # Only the content that should go inside #main_content
         profile_html = render_template("_profile.html", user=user, tweets=tweets)
 
-        # 🔴 IMPORTANT: now we update #main_content, not "main"
         return f"""<browser mix-update="#main_content">{ profile_html }</browser>"""
 
     except Exception as ex:
