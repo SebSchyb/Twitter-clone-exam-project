@@ -17,6 +17,7 @@
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
+
                 <details class="profile-edit">
                     <summary class="btn btn-edit-profile">
                         <i class="fa fa-pencil"></i>
@@ -25,6 +26,7 @@
 
                     <form mix-post="/api-update-profile" class="profile-edit-form">
 
+                        <button type="button" class="close-edit"><i class="fa-solid fa-x"></i></button>
                         <label class="profile-field">
                             <span>First name</span>
                             <input type="text" name="user_first_name" value="{{ user.user_first_name }}" required>
@@ -55,6 +57,7 @@
                         </button>
                     </form>
                 </details>
+
             </div>
 
             {% if user.user_bio %}

@@ -58,9 +58,29 @@ function parse_search_results(data_from_server){
 
 // ##############################
 burger.addEventListener("click", () => {
-  // toggle nav
+
   nav.classList.toggle("active");
 
-  // toggle icon
   burger.classList.toggle("open");
+});
+
+
+document.addEventListener("click", (event) => {
+    const closeBtn = event.target.closest(".close-edit");
+    if (!closeBtn) return;
+
+    const details = closeBtn.closest("details.profile-edit");
+    if (details) {
+        details.open = false;
+    }
+});
+
+document.addEventListener("submit", (event) => {
+    const form = event.target.closest(".profile-edit-form");
+    if (!form) return;
+
+    const details = form.closest("details.profile-edit");
+    if (details) {
+        details.open = false;
+    }
 });

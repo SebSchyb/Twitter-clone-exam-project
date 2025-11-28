@@ -23,6 +23,9 @@ a {
 p {
     line-height: 1.4rem;
 }
+textarea{
+    resize: none;
+}
 
 #container {
     display: grid;
@@ -993,6 +996,12 @@ aside {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  width: 320px;
 }
 
 .profile-field {
@@ -1099,3 +1108,64 @@ aside {
     font-size: 0.8125rem;
   }
 }
+
+/* When the profile-edit details is open… */
+.profile-page:has(details.profile-edit[open]) {
+    position: relative;
+}
+
+/* Create a pseudo-element overlay */
+.profile-page:has(details.profile-edit[open])::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);   /* darken */
+    backdrop-filter: blur(6px);        /* blur */
+    z-index: 90;
+    pointer-events: none;
+}
+
+/* Make sure the actual details popup stays above the blur */
+details.profile-edit[open] {
+    position: relative;
+    z-index: 999;
+}
+.profile-page:has(details.profile-edit[open]) {
+    position: relative;
+}
+
+.profile-page:has(details.profile-edit[open])::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    z-index: 90;
+    pointer-events: none;
+}
+
+details.profile-edit[open] {
+    position: relative;
+    z-index: 999;
+}
+
+details.profile-edit .close-edit {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #bbb;
+    z-index: 1001;
+}
+
+details.profile-edit .close-edit:hover {
+    color: #fff;
+}
+
+
+
+
+
