@@ -283,7 +283,7 @@ def home_comp():
         cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
         ic("home-comp fired")
-        html = render_template("_home_comp.html", tweets=tweets, user=user)
+        html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
 
     except Exception as ex:
@@ -555,11 +555,18 @@ def api_create_comment(post_pk):
         cursor.execute(q, (comment_pk, user_pk, post_pk, comment))
         db.commit()
         ic(comment)
+        finalcomment = {
+            "user_username": user["user_username"],
+            "user_first_name": user["user_first_name"],
+            "user_last_name": user["user_last_name"],
+            "comment": comment,
+            "comment_pk": comment_pk
+        }
         toast_ok = render_template("___toast_ok.html", message="The world is reading your comment!")
-        html_post_container = render_template("___post_container.html")
+        html_comment = render_template("__comment.html", comment=finalcomment)
         return f"""
         <browser mix-bottom="#toast">{ toast_ok }</browser>
-        <browser mix-replace="#post_container">{html_post_container}</browser>
+        <browser mix-top="#comments-{post_pk}">{html_comment}</browser>
         """
     except Exception as ex:
         if "x-error post" in str(ex):
@@ -567,6 +574,7 @@ def api_create_comment(post_pk):
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         # System or developer error
+        ic(ex)
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
