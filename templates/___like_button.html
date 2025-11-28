@@ -1,0 +1,13 @@
+<button
+    class="like-btn action"
+    data-post="{{ tweet.post_pk }}"
+    id="like-btn-{{ tweet.post_pk }}"
+    aria-pressed="{{ 'true' if tweet.liked|int else 'false' }}"
+>
+    {% if tweet.liked|int %}
+    <i class="fa-solid fa-heart"></i>
+    {% else %}
+    <i class="fa-regular fa-heart"></i>
+    {% endif %}
+    <span class="like-count">{{ tweet.like_count }}</span>
+</button>

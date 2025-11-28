@@ -210,22 +210,70 @@ def signup(lan = "english"):
 def home():
     try:
         user = session.get("user", "")
-        if not user: return redirect(url_for("login"))
+        if not user:
+            return redirect(url_for("login"))
         db, cursor = x.db()
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 5"
-        cursor.execute(q)
-        tweets = cursor.fetchall()
-        ic(tweets)
 
+        # 1. Get tweets
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
+        GROUP BY posts.post_pk
+        ORDER BY RAND()
+        LIMIT 5
+        """
+        cursor.execute(q, (user["user_pk"],))
+        tweets = cursor.fetchall()
+
+        # 2. Get all post_pks
+        post_pks = [t["post_pk"] for t in tweets]
+
+        if post_pks:  # Only fetch comments if we have posts
+            # 3. Fetch all comments for these posts
+            q = f"""
+            SELECT 
+                comments.*,
+                users.user_username,
+                users.user_first_name,
+                users.user_last_name,
+                users.user_avatar_path
+            FROM comments
+            JOIN users ON users.user_pk = comments.user_fk
+            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
+            ORDER BY comments.comment_pk ASC
+            """
+            cursor.execute(q, tuple(post_pks))
+            comments = cursor.fetchall()
+
+            # 4. Group comments by post_fk
+            comments_by_post = {pk: [] for pk in post_pks}
+            for c in comments:
+                comments_by_post[c["post_fk"]].append(c)
+
+            # 5. Attach each comment group to its corresponding tweet
+            for t in tweets:
+                t["comments"] = comments_by_post.get(t["post_pk"], [])
+        else:
+            # No posts → no comments
+            for t in tweets:
+                t["comments"] = []
+
+        ic(tweets)
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
         trends = cursor.fetchall()
-        ic(trends)
 
         q = "SELECT * FROM users WHERE user_pk != %s ORDER BY RAND() LIMIT 3"
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
-        ic(suggestions)
 
         return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
     except Exception as ex:
@@ -234,6 +282,8 @@ def home():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
 
 ##############################
 @app.route("/verify-account", methods=["GET"])
@@ -280,20 +330,74 @@ def home_comp():
     try:
 
         user = session.get("user", "")
-        if not user: return "error"
-        db, cursor = x.db()
-        q = "SELECT * FROM users JOIN posts ON user_pk = post_user_fk ORDER BY RAND() LIMIT 5"
-        cursor.execute(q)
-        tweets = cursor.fetchall()
-        ic(tweets)
+        if not user: 
+            return "error"
 
-        html = render_template("_home_comp.html", tweets=tweets)
+        db, cursor = x.db()
+
+        # 1. Get tweets
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
+        GROUP BY posts.post_pk
+        ORDER BY RAND()
+        LIMIT 5
+        """
+        cursor.execute(q, (user["user_pk"],))
+        tweets = cursor.fetchall()
+        
+        # 2. Get all post_pks
+        post_pks = [t["post_pk"] for t in tweets]
+        
+        if post_pks:  # Only fetch comments if we have posts
+            # 3. Fetch all comments for these posts
+            q = f"""
+            SELECT 
+                comments.*,
+                users.user_username,
+                users.user_first_name,
+                users.user_last_name,
+                users.user_avatar_path
+            FROM comments
+            JOIN users ON users.user_pk = comments.user_fk
+            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
+            ORDER BY comments.comment_pk ASC
+            """
+            cursor.execute(q, tuple(post_pks))
+            comments = cursor.fetchall()
+        
+            # 4. Group comments by post_fk
+            comments_by_post = {pk: [] for pk in post_pks}
+            for c in comments:
+                comments_by_post[c["post_fk"]].append(c)
+        
+            # 5. Attach each comment group to its corresponding tweet
+            for t in tweets:
+                t["comments"] = comments_by_post.get(t["post_pk"], [])
+        else:
+            # No posts → no comments
+            for t in tweets:
+                t["comments"] = []
+        
+        ic("home-comp fired")
+        html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
     except Exception as ex:
         ic(ex)
         return "error"
+
     finally:
-        pass
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
 
 ##############################
@@ -351,31 +455,187 @@ def profile():
 
 
 ##############################
-@app.patch("/like-tweet")
-@x.no_cache
-def api_like_tweet():
+@app.post("/toggle_like")
+def toggle_like():
     try:
-        button_unlike_tweet = render_template("___button_unlike_tweet.html")
-        return f"""
-            <mixhtml mix-replace="#button_1">
-                {button_unlike_tweet}
-            </mixhtml>
-        """
+        user = session.get("user", "")
+        if not user:
+            return jsonify({"error": "not_logged_in"}), 401
+
+        data = request.get_json() or {}
+        post_pk = data.get("post_pk")
+        if not post_pk:
+            return jsonify({"error": "missing_post_pk"}), 400
+
+        db, cursor = x.db()
+
+        # check if the user already liked the post
+        q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s AND user_fk = %s"
+        cursor.execute(q, (post_pk, user["user_pk"]))
+        already = cursor.fetchone()["cnt"] > 0
+
+        if already:
+            # unlike (delete)
+            q = "DELETE FROM likes WHERE post_fk = %s AND user_fk = %s"
+            cursor.execute(q, (post_pk, user["user_pk"]))
+            db.commit()
+            liked = False
+        else:
+            # like (insert)
+            q = "INSERT INTO likes (post_fk, user_fk) VALUES (%s, %s)"
+            try:
+                cursor.execute(q, (post_pk, user["user_pk"]))
+                db.commit()
+            except Exception as e:
+                # handle race/duplicate gracefully
+                db.rollback()
+            liked = True
+
+        # get updated like count
+        q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s"
+        cursor.execute(q, (post_pk,))
+        like_count = cursor.fetchone()["cnt"]
+
+        # safe close
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+        return jsonify({"liked": liked, "like_count": like_count})
     except Exception as ex:
         ic(ex)
-        return "error"
+        try:
+            if "db" in locals(): db.rollback()
+        except:
+            pass
+        return jsonify({"error": "server_error"}), 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
+
+
+##############################
+@app.patch("/api-edit-post/<post_pk>")
+def api_edit_post(post_pk):
+    try:
+        # User must be logged in
+        user = session.get("user", "")
+        if not user:
+            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # FormData input (NOT JSON)
+        message = request.form.get("message", "").strip()
+
+        # Validate message length
+        if not (1 <= len(message) <= x.POST_MAX_LEN):
+            toast_error = render_template("___toast_error.html", message="Invalid post length")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # DB connection
+        db, cursor = x.db()
+
+        # Ownership check
+        q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        row = cursor.fetchone()
+
+        if not row:
+            toast_error = render_template("___toast_error.html", message="Post not found")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        if row["post_user_fk"] != user["user_pk"]:
+            toast_error = render_template("___toast_error.html", message="You cannot edit this post")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # Update post
+        q = "UPDATE posts SET post_message = %s WHERE post_pk = %s"
+        cursor.execute(q, (message, post_pk))
+        db.commit()
+
+        # Toast + re-render post container
+        toast_ok = render_template("___toast_ok.html", message="Post updated")
+        html_post_container = render_template("___post_container.html")
+
+        return f"""
+            <browser mix-replace="#text-{post_pk}">{message}</browser>
+            <browser mix-bottom="#toast">{toast_ok}</browser>
+            <browser mix-replace="#post_container">{html_post_container}</browser>
+        """
+
+    except Exception as ex:
+        ic(ex)
+        if "db" in locals():
+            db.rollback()
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
+
+    finally:
+        if "cursor" in locals():
+            cursor.close()
+        if "db" in locals():
+            db.close()
+
+
+
+##############################
+@app.delete("/api-delete-post/<post_pk>")
+def api_delete_post(post_pk):
+    try:
+        user = session.get("user", "")
+        if not user:
+            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        db, cursor = x.db()
+
+        # Verify ownership
+        q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        row = cursor.fetchone()
+
+        if not row:
+            toast_error = render_template("___toast_error.html", message="Post not found")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        if row["post_user_fk"] != user["user_pk"]:
+            toast_error = render_template("___toast_error.html", message="You cannot delete this post")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # Delete post
+        q = "DELETE FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        db.commit()
+
+        toast_ok = render_template("___toast_ok.html", message="Post deleted")
+        html_post_container = render_template("___post_container.html")
+        return f"""
+            <browser mix-remove="#tweet-{post_pk}"></browser>
+            <browser mix-bottom="#toast">{toast_ok}</browser>
+            <browser mix-replace="#post_container">{html_post_container}</browser>
+        """
+
+    except Exception as ex:
+        ic(ex)
+        if "db" in locals(): db.rollback()
+
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
+
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 
 
 ##############################
 @app.route("/api-create-post", methods=["POST"])
 def api_create_post():
     try:
-        user = session.get("user", "")
+        user = session.get("user", "")   
         if not user: return "invalid user"
-        user_pk = user["user_pk"]        
+        user_pk = user["user_pk"]   
         post = x.validate_post(request.form.get("post", ""))
         post_pk = uuid.uuid4().hex
         post_image_path = ""
@@ -383,16 +643,20 @@ def api_create_post():
         q = "INSERT INTO posts VALUES(%s, %s, %s, %s, %s)"
         cursor.execute(q, (post_pk, user_pk, post, 0, post_image_path))
         db.commit()
-        toast_ok = render_template("___toast_ok.html", message="The world is reading your post !")
+        toast_ok = render_template("___toast_ok.html", message="The world is reading your post!")
         tweet = {
+            "post_pk": post_pk,
+            "user_pk": user_pk,
+            "post_user_fk": user_pk,
             "user_first_name": user["user_first_name"],
             "user_last_name": user["user_last_name"],
             "user_username": user["user_username"],
             "user_avatar_path": user["user_avatar_path"],
             "post_message": post,
+            "liked": None,
         }
         html_post_container = render_template("___post_container.html")
-        html_post = render_template("_tweet.html", tweet=tweet)
+        html_post = render_template("_tweet.html", tweet=tweet, user=user)
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-top="#posts">{html_post}</browser>
@@ -411,6 +675,46 @@ def api_create_post():
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()    
+
+##############################
+@app.post("/api-create-comment/<post_pk>")
+def api_create_comment(post_pk):
+    try:
+        user = session.get("user", "")   
+        if not user: return "invalid user"
+        db, cursor = x.db()
+        user_pk = user["user_pk"]  
+        comment_pk = uuid.uuid4().hex
+        comment = x.validate_post(request.form.get("comment", "").strip())
+        q = "INSERT INTO comments VALUES(%s, %s, %s, %s)"
+        cursor.execute(q, (comment_pk, user_pk, post_pk, comment))
+        db.commit()
+        ic(comment)
+        finalcomment = {
+            "user_username": user["user_username"],
+            "user_first_name": user["user_first_name"],
+            "user_last_name": user["user_last_name"],
+            "comment_content": comment,
+            "comment_pk": comment_pk
+        }
+        toast_ok = render_template("___toast_ok.html", message="The world is reading your comment!")
+        html_comment = render_template("__comment.html", comment=finalcomment)
+        return f"""
+        <browser mix-bottom="#toast">{ toast_ok }</browser>
+        <browser mix-top="#comments-{post_pk}">{html_comment}</browser>
+        """
+    except Exception as ex:
+        if "x-error post" in str(ex):
+            toast_error = render_template("___toast_error.html", message=f"Comment - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # System or developer error
+        ic(ex)
+        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()    

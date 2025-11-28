@@ -1,4 +1,4 @@
-<article class="post" mix-fade-in="500">
+<article class="post tweet" id="tweet-{{tweet.post_pk}}">
     <img
         src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
         alt="Profile Picture"
@@ -11,8 +11,65 @@
             </span>
             <span class="handle">@{{ tweet.user_username }}</span> ·
             <span class="time">1d</span>
+            <!--Render only if users own tweet-->
+
+            {% if tweet.post_user_fk == user.user_pk: %}
+            <details class="menu">
+                <summary class="edit">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </summary>
+
+                <div>
+                    <button data-post="{{tweet.post_pk}}" class="edit-btn">
+                        Edit
+                    </button>
+                    <button
+                        data-post="{{tweet.post_pk}}"
+                        class="delete delete-btn"
+                        mix-delete="/api-delete-post/{{tweet.post_pk}}"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </details>
+            <!-- EDIT MODAL -->
+            <div id="editModal-{{tweet.post_pk}}" class="modal hidden">
+                <div class="modal-content">
+                    <span id="closeEditModal-{{tweet.post_pk}}" class="close"
+                        >&times;</span
+                    >
+
+                    <h2>Edit Post</h2>
+                    <form
+                        id="editForm-{{tweet.post_pk}}"
+                        action="/api-edit-post/{{tweet.post_pk}}"
+                        mix-patch
+                    >
+                        <!-- <input type="hidden" id="editPostId" /> -->
+                        <textarea
+                            class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
+                            id="editText-{{tweet.post_pk}}"
+                            rows="5"
+                            name="message"
+                        >
+{{ tweet.post_message }}</textarea
+                        >
+
+                        <button
+                            class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
+                            type="submit"
+                        >
+                            Update Post
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% endif %}
         </div>
-        <p class="text">{{ tweet.post_message }}</p>
+        <p class="text" id="text-{{ tweet.post_pk }}">
+            {{ tweet.post_message }}
+        </p>
         {% if tweet.post_image_path: %}
         <img
             src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}"
@@ -24,7 +81,7 @@
         <div class="post-actions">
             <span class="action"><i class="fa-regular fa-comment"></i> 12</span>
             <span class="action"><i class="fa-solid fa-retweet"></i> 5</span>
-            {% include "___button_like_tweet.html" %}
+            {% include "___like_button.html" %}
             <span class="action"
                 ><i class="fa-solid fa-chart-simple"></i> 230</span
             >
@@ -32,3 +89,33 @@
         </div>
     </div>
 </article>
+<form
+    class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md"
+    mix-post="/api-create-comment/{{tweet.post_pk}}"
+>
+    <img
+        src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+        alt="Profile Picture"
+        class="w-8 h-8 rounded-full"
+    />
+    <textarea
+        name="comment"
+        id=""
+        class="w-full pa-2"
+        placeholder="Post your reply"
+        rows="1"
+    ></textarea>
+    <button
+        class="w-auto m-auto bg-c-transparent text-c-black[40] border-1 border-s-solid border-c-black[40] py-2 px-6 rounded-xl cursor-pointer"
+        type="submit"
+    >
+        Reply
+    </button>
+</form>
+<div
+    class="comments pa-2 border-b-4 border-c-[#e6e6e6]"
+    id="comments-{{tweet.post_pk}}"
+>
+    {% for c in tweet.comments %} {% set comment = c %} {% include
+    "__comment.html" %} {% endfor %}
+</div>
