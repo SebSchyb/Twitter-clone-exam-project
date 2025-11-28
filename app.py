@@ -117,7 +117,7 @@ def api_delete_profile():
         row = cursor.fetchone()
 
         if not row: 
-            toast_error = render_template("_toast_error.html", message="din mor er en hund")
+            toast_error = render_template("_toast_error.html", message="ok")
             return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
         if row["user_pk"]!=user["user_pk"]:
             toast_error = render_template("_toast_error.html", message="det kan du ikke")
