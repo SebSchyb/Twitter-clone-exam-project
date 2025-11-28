@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: mariadb
--- Genereringstid: 26. 11 2025 kl. 11:35:46
+-- Genereringstid: 28. 11 2025 kl. 09:43:42
 -- Serverversion: 10.6.20-MariaDB-ubu2004
 -- PHP-version: 8.2.27
 
@@ -98,19 +98,20 @@ CREATE TABLE `users` (
   `user_reset_key` varchar(64) DEFAULT '',
   `user_reset_expires_at` bigint(20) DEFAULT 0,
   `user_verified_at` bigint(20) UNSIGNED NOT NULL,
-  `user_is_active` tinyint(1) NOT NULL DEFAULT 1
+  `user_is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `user_bio` varchar(120) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Data dump for tabellen `users`
 --
 
-INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, `user_first_name`, `user_last_name`, `user_avatar_path`, `user_verification_key`, `user_reset_key`, `user_reset_expires_at`, `user_verified_at`, `user_is_active`) VALUES
-('225a9fc15b8f409aa5c8ee7eafee516b', 'a@a.com', 'scrypt:32768:8:1$wnse70hQwhCvR9tC$724c32a91b5f277201afbb141f9293a93168327df5c9124f482d3c32b8dff991c41629f477dfaee021965f9b15318a4257aad2e933101a4c998ef3c346fc84e4', 'aTest', 'Tester', '', 'avatar_1.jpg', '', '', 0, 455656, 1),
-('6b48c6095913402eb4841529830e5415', 'a@a1.com', 'scrypt:32768:8:1$rRjuDGIwaA31YlPi$f73f9a059fb3757ba6724d9c94e2a192d8b8d59fcd18d7b11c57e508f1b9cfb94bb7c6fd4f8d632b777e31cd47aef9c95adcad2451786cbb7e7c073fe8cbaf3a', 'santiago1', 'Santiago', '', '', 'ee92b2c86a6c48569138a43ce8bc1d48', '', 0, 0, 1),
-('805a39cd8c854ee8a83555a308645bf5', 'fullflaskdemomail@gmail.com', 'scrypt:32768:8:1$VlBgiW1xFsZuKRML$a5f61d62ac3f45d42c58cf8362637e717793b8760f026b1b47b7bfec47037abbe13e1c20e8bdc66fc03cc153d0bcf6185e15cf25ad58eb9d344267882dd7e78c', 'santiago', 'Santiago', '', 'avatar_1.jpg', '', '', 0, 565656, 1),
-('88a93bb5267e443eb0047f421a7a2f34', 'santi@gmail.com', 'scrypt:32768:8:1$PEIO0eliDPqnCCbw$acb791128831bc90030ac363e4b76db196689bd99c1ccde5c2c20a7d4fe909e07129f3f4fd4f086e347375edbb8229e9ba5dc126cc14f6107fb1fc2abf6498f8', 'gustav', 'Gustav', '', 'avatar_2.jpg', '', '', 0, 54654564, 1),
-('e06e069c01144a96904af5246e0b30d7', 'sebschyb.dev@gmail.com', 'scrypt:32768:8:1$lNZlaS4CZXimbVRe$f4c694271c459d0e8ccdfeb5cd468c71b284ed49461d63315501c8785efb5353fab3741e218c082d10d5bd219ce157d20526f36902333165bfac99b6a3104f01', 'seb', 'sebastian', '', '', 'dbe5e7fd62c745ef97e11a1e18ce2a26', '', 0, 0, 1);
+INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, `user_first_name`, `user_last_name`, `user_avatar_path`, `user_verification_key`, `user_reset_key`, `user_reset_expires_at`, `user_verified_at`, `user_is_active`, `user_bio`) VALUES
+('225a9fc15b8f409aa5c8ee7eafee516b', 'a@a.com', 'scrypt:32768:8:1$wnse70hQwhCvR9tC$724c32a91b5f277201afbb141f9293a93168327df5c9124f482d3c32b8dff991c41629f477dfaee021965f9b15318a4257aad2e933101a4c998ef3c346fc84e4', 'aTest', 'Tester', '', 'avatar_1.jpg', '', '', 0, 455656, 1, 'Jeg kan godt lide skildpadder123'),
+('6b48c6095913402eb4841529830e5415', 'a@a1.com', 'scrypt:32768:8:1$rRjuDGIwaA31YlPi$f73f9a059fb3757ba6724d9c94e2a192d8b8d59fcd18d7b11c57e508f1b9cfb94bb7c6fd4f8d632b777e31cd47aef9c95adcad2451786cbb7e7c073fe8cbaf3a', 'santiago1', 'Santiago', '', '', 'ee92b2c86a6c48569138a43ce8bc1d48', '', 0, 0, 1, ''),
+('805a39cd8c854ee8a83555a308645bf5', 'fullflaskdemomail@gmail.com', 'scrypt:32768:8:1$VlBgiW1xFsZuKRML$a5f61d62ac3f45d42c58cf8362637e717793b8760f026b1b47b7bfec47037abbe13e1c20e8bdc66fc03cc153d0bcf6185e15cf25ad58eb9d344267882dd7e78c', 'santiago', 'Santiago', '', 'avatar_1.jpg', '', '', 0, 565656, 1, ''),
+('88a93bb5267e443eb0047f421a7a2f34', 'santi@gmail.com', 'scrypt:32768:8:1$PEIO0eliDPqnCCbw$acb791128831bc90030ac363e4b76db196689bd99c1ccde5c2c20a7d4fe909e07129f3f4fd4f086e347375edbb8229e9ba5dc126cc14f6107fb1fc2abf6498f8', 'gustav', 'Gustav', '', 'avatar_2.jpg', '', '', 0, 54654564, 1, ''),
+('e06e069c01144a96904af5246e0b30d7', 'sebschyb.dev@gmail.com', 'scrypt:32768:8:1$lNZlaS4CZXimbVRe$f4c694271c459d0e8ccdfeb5cd468c71b284ed49461d63315501c8785efb5353fab3741e218c082d10d5bd219ce157d20526f36902333165bfac99b6a3104f01', 'seb', 'sebastian', '', '', 'dbe5e7fd62c745ef97e11a1e18ce2a26', '', 0, 0, 1, '');
 
 --
 -- Begrænsninger for dumpede tabeller
