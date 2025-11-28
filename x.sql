@@ -1,16 +1,15 @@
--- phpMyAdmin SQL Dump
--- version 5.2.3
+-- phpMyAdmin SQL Dump (merged)
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: mariadb
--- Generation Time: Nov 22, 2025 at 05:14 PM
+-- Generation Time: 28. 11 2025
 -- Server version: 10.6.20-MariaDB-ubu2004
--- PHP Version: 8.3.26
+-- PHP Version: 8.2.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -22,27 +21,43 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
-
 --
--- Table structure for table `likes`
+-- Struktur-dump for tabellen `users`
+-- (extended schema from FIRST dump)
 --
 
-CREATE TABLE `likes` (
-  `post_fk` char(32) NOT NULL,
-  `user_fk` char(32) NOT NULL
+CREATE TABLE `users` (
+  `user_pk` char(32) NOT NULL,
+  `user_email` varchar(100) NOT NULL,
+  `user_password` varchar(255) NOT NULL,
+  `user_username` varchar(20) NOT NULL,
+  `user_first_name` varchar(20) NOT NULL,
+  `user_last_name` varchar(20) NOT NULL DEFAULT '',
+  `user_avatar_path` varchar(50) NOT NULL,
+  `user_verification_key` char(32) NOT NULL,
+  `user_reset_key` varchar(64) DEFAULT '',
+  `user_reset_expires_at` bigint(20) DEFAULT 0,
+  `user_verified_at` bigint(20) UNSIGNED NOT NULL,
+  `user_is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `user_bio` varchar(120) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `likes`
+-- Data dump for tabellen `users`
+-- (rows taken from FIRST dump)
 --
 
-INSERT INTO `likes` (`post_fk`, `user_fk`) VALUES
-('99fefea24ea5419da19ed1f8cf8e9499', '225a9fc15b8f409aa5c8ee7eafee516b');
+INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, `user_first_name`, `user_last_name`, `user_avatar_path`, `user_verification_key`, `user_reset_key`, `user_reset_expires_at`, `user_verified_at`, `user_is_active`, `user_bio`) VALUES
+('225a9fc15b8f409aa5c8ee7eafee516b', 'a@a.com', 'scrypt:32768:8:1$wnse70hQwhCvR9tC$724c32a91b5f277201afbb141f9293a93168327df5c9124f482d3c32b8dff991c41629f477dfaee021965f9b15318a4257aad2e933101a4c998ef3c346fc84e4', 'aTest', 'Tester', '', 'avatar_1.jpg', '', '', 0, 455656, 1, 'Jeg kan godt lide skildpadder12345'),
+('6b48c6095913402eb4841529830e5415', 'a@a1.com', 'scrypt:32768:8:1$rRjuDGIwaA31YlPi$f73f9a059fb3757ba6724d9c94e2a192d8b8d59fcd18d7b11c57e508f1b9cfb94bb7c6fd4f8d632b777e31cd47aef9c95adcad2451786cbb7e7c073fe8cbaf3a', 'santiago1', 'Santiago', '', '', 'ee92b2c86a6c48569138a43ce8bc1d48', '', 0, 0, 1, ''),
+('805a39cd8c854ee8a83555a308645bf5', 'fullflaskdemomail@gmail.com', 'scrypt:32768:8:1$VlBgiW1xFsZuKRML$a5f61d62ac3f45d42c58cf8362637e717793b8760f026b1b47b7bfec47037abbe13e1c20e8bdc66fc03cc153d0bcf6185e15cf25ad58eb9d344267882dd7e78c', 'santiago', 'Santiago', '', 'avatar_1.jpg', '', '', 0, 565656, 1, ''),
+('88a93bb5267e443eb0047f421a7a2f34', 'santi@gmail.com', 'scrypt:32768:8:1$PEIO0eliDPqnCCbw$acb791128831bc90030ac363e4b76db196689bd99c1ccde5c2c20a7d4fe909e07129f3f4fd4f086e347375edbb8229e9ba5dc126cc14f6107fb1fc2abf6498f8', 'gustav', 'Gustav', '', 'avatar_2.jpg', '', '', 0, 54654564, 1, ''),
+('e06e069c01144a96904af5246e0b30d7', 'sebschyb.dev@gmail.com', 'scrypt:32768:8:1$lNZlaS4CZXimbVRe$f4c694271c459d0e8ccdfeb5cd468c71b284ed49461d63315501c8785efb5353fab3741e218c082d10d5bd219ce157d20526f36902333165bfac99b6a3104f01', 'seb', 'sebastian', '', '', 'dbe5e7fd62c745ef97e11a1e18ce2a26', '', 0, 0, 1, '');
 
 -- --------------------------------------------------------
-
 --
--- Table structure for table `posts`
+-- Struktur-dump for tabellen `posts`
+-- (schema same in both dumps; data merged)
 --
 
 CREATE TABLE `posts` (
@@ -54,7 +69,8 @@ CREATE TABLE `posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `posts`
+-- Data dump for tabellen `posts`
+-- (union of FIRST + SECOND, no duplicates)
 --
 
 INSERT INTO `posts` (`post_pk`, `post_user_fk`, `post_message`, `post_total_likes`, `post_image_path`) VALUES
@@ -69,7 +85,9 @@ INSERT INTO `posts` (`post_pk`, `post_user_fk`, `post_message`, `post_total_like
 ('616c38c6e9e14406a92439e2d81490fc', '225a9fc15b8f409aa5c8ee7eafee516b', 'A browser', 0, ''),
 ('63ed90b8cafc47fa9a3253fa1ecfeb04', '225a9fc15b8f409aa5c8ee7eafee516b', 'this', 0, ''),
 ('7d6f40e626c54efaa32494bce5f739d7', '88a93bb5267e443eb0047f421a7a2f34', 'test', 0, 'post_2.jpg'),
+('9006ea6b77b44ad09520e8cd065459f8', '6b48c6095913402eb4841529830e5415', 'Testpost Janus', 0, ''),
 ('99fefea24ea5419da19ed1f8cf8e9499', '225a9fc15b8f409aa5c8ee7eafee516b', 'wow', 0, 'post_1.jpg'),
+('a86f869606e446b9a37fd835c9317d05', '225a9fc15b8f409aa5c8ee7eafee516b', 'Test post 123', 0, ''),
 ('ad95e1d3f62f4d07b7bf9e3e6d4dd527', '225a9fc15b8f409aa5c8ee7eafee516b', 'And this just works!', 0, ''),
 ('b4b23963a6a4479e918e66f47baef200', '225a9fc15b8f409aa5c8ee7eafee516b', 'test1', 0, ''),
 ('b8f59662ce5b4b58bf19a5fe0eda3122', '225a9fc15b8f409aa5c8ee7eafee516b', 'test2', 0, ''),
@@ -78,9 +96,60 @@ INSERT INTO `posts` (`post_pk`, `post_user_fk`, `post_message`, `post_total_like
 ('efaf8b6f98be4a7b8cc7a75d0f83578c', '225a9fc15b8f409aa5c8ee7eafee516b', 'test', 0, '');
 
 -- --------------------------------------------------------
+--
+-- Table structure for table `comments`
+-- (from SECOND dump)
+--
+
+CREATE TABLE `comments` (
+  `comment_pk` char(32) NOT NULL,
+  `user_fk` char(32) NOT NULL,
+  `post_fk` char(32) NOT NULL,
+  `comment_content` varchar(280) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Table structure for table `trends`
+-- Dumping data for table `comments`
+--
+
+INSERT INTO `comments` (`comment_pk`, `user_fk`, `post_fk`, `comment_content`) VALUES
+('0e7d7b9a45b54f63b660f5c98ecf5393', '225a9fc15b8f409aa5c8ee7eafee516b', '3e4f0c3ab65344d8b79c849400418758', 'cockandballtorture'),
+('19ca793ff98c48519ddad33f1601266b', '225a9fc15b8f409aa5c8ee7eafee516b', 'e40967338e8c466985dbde4e3f9c712a', 'poster en comment'),
+('2161f7e367df48d5bb96b29c576a0a6e', '225a9fc15b8f409aa5c8ee7eafee516b', 'efaf8b6f98be4a7b8cc7a75d0f83578c', 'tester'),
+('53529a887cf3437fab85a8b073220d16', '225a9fc15b8f409aa5c8ee7eafee516b', '3e4f0c3ab65344d8b79c849400418758', 'testereset'),
+('7db7b610eb6742a79a667e3e614b3295', '225a9fc15b8f409aa5c8ee7eafee516b', '63ed90b8cafc47fa9a3253fa1ecfeb04', 'testcomment4'),
+('8bbecca8e9034fbea65cc37a5957c3d7', '225a9fc15b8f409aa5c8ee7eafee516b', '63ed90b8cafc47fa9a3253fa1ecfeb04', 'testcomment'),
+('b9152ee9ee024590b465ee722104051b', '225a9fc15b8f409aa5c8ee7eafee516b', 'b8f59662ce5b4b58bf19a5fe0eda3122', 'testcomment2'),
+('bfc6d0bc9ed040238c8e640467cf9271', '225a9fc15b8f409aa5c8ee7eafee516b', '3e4f0c3ab65344d8b79c849400418758', 'tis'),
+('c26d75d7c62f4c1aa789fc0ddee1e3c9', '225a9fc15b8f409aa5c8ee7eafee516b', '9006ea6b77b44ad09520e8cd065459f8', 'abekat'),
+('c4d0ca1a629143e6a338635a14f83727', '225a9fc15b8f409aa5c8ee7eafee516b', 'bcaa6df8880e411a9c25deaafae2314a', 'postcomment 6'),
+('cf1bb4ad6894483daebce877e52f2d1d', '6b48c6095913402eb4841529830e5415', '3cb78d73518c4c01a29ad33d196ce962', 'testreply'),
+('d7d3df7fb6a64f609ee1df86254f56ab', '225a9fc15b8f409aa5c8ee7eafee516b', 'e40967338e8c466985dbde4e3f9c712a', 'cockandballtorture'),
+('eb8d5ec9aa964143a8bae8765d8a5ba1', '225a9fc15b8f409aa5c8ee7eafee516b', '9006ea6b77b44ad09520e8cd065459f8', 'testcomment'),
+('f7cdd61eeb934468bd9d29e823360af5', '225a9fc15b8f409aa5c8ee7eafee516b', '99fefea24ea5419da19ed1f8cf8e9499', 'tester');
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `likes`
+-- (from SECOND dump)
+--
+
+CREATE TABLE `likes` (
+  `post_fk` char(32) NOT NULL,
+  `user_fk` char(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `likes`
+--
+
+INSERT INTO `likes` (`post_fk`, `user_fk`) VALUES
+('299323cf81924589b0de265e715a1f9e', '6b48c6095913402eb4841529830e5415');
+
+-- --------------------------------------------------------
+--
+-- Struktur-dump for tabellen `trends`
+-- (schema & data identical in both; included once)
 --
 
 CREATE TABLE `trends` (
@@ -90,64 +159,17 @@ CREATE TABLE `trends` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `trends`
+-- Data dump for tabellen `trends`
 --
 
 INSERT INTO `trends` (`trend_pk`, `trend_title`, `trend_message`) VALUES
 ('6543c995d1af4ebcbd5280a4afaa1e2c', 'Politics are rotten', 'Everyone talks and only a few try to do something'),
-('8343c995d1af4ebcbd5280a6afaa1e2d', 'New rocket to the moon', 'A new rocket has been sent towards the moon, but id didn\'t make it');
+('8343c995d1af4ebcbd5280a6afaa1e2d', 'New rocket to the moon', 'A new rocket has been sent towards the moon, but id didn''t make it');
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `user_pk` char(32) NOT NULL,
-  `user_email` varchar(100) NOT NULL,
-  `user_password` varchar(255) NOT NULL,
-  `user_username` varchar(20) NOT NULL,
-  `user_first_name` varchar(20) NOT NULL,
-  `user_last_name` varchar(20) NOT NULL DEFAULT '',
-  `user_avatar_path` varchar(50) NOT NULL,
-  `user_verification_key` char(32) NOT NULL,
-  `user_verified_at` bigint(20) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`user_pk`, `user_email`, `user_password`, `user_username`, `user_first_name`, `user_last_name`, `user_avatar_path`, `user_verification_key`, `user_verified_at`) VALUES
-('225a9fc15b8f409aa5c8ee7eafee516b', 'a@a.com', 'scrypt:32768:8:1$wnse70hQwhCvR9tC$724c32a91b5f277201afbb141f9293a93168327df5c9124f482d3c32b8dff991c41629f477dfaee021965f9b15318a4257aad2e933101a4c998ef3c346fc84e4', 'aTest', 'Tester', '', 'avatar_1.jpg', '', 455656),
-('6b48c6095913402eb4841529830e5415', 'a@a1.com', 'scrypt:32768:8:1$rRjuDGIwaA31YlPi$f73f9a059fb3757ba6724d9c94e2a192d8b8d59fcd18d7b11c57e508f1b9cfb94bb7c6fd4f8d632b777e31cd47aef9c95adcad2451786cbb7e7c073fe8cbaf3a', 'santiago1', 'Santiago', '', '', 'ee92b2c86a6c48569138a43ce8bc1d48', 0),
-('805a39cd8c854ee8a83555a308645bf5', 'fullflaskdemomail@gmail.com', 'scrypt:32768:8:1$VlBgiW1xFsZuKRML$a5f61d62ac3f45d42c58cf8362637e717793b8760f026b1b47b7bfec47037abbe13e1c20e8bdc66fc03cc153d0bcf6185e15cf25ad58eb9d344267882dd7e78c', 'santiago', 'Santiago', '', 'avatar_1.jpg', '', 565656),
-('88a93bb5267e443eb0047f421a7a2f34', 'santi@gmail.com', 'scrypt:32768:8:1$PEIO0eliDPqnCCbw$acb791128831bc90030ac363e4b76db196689bd99c1ccde5c2c20a7d4fe909e07129f3f4fd4f086e347375edbb8229e9ba5dc126cc14f6107fb1fc2abf6498f8', 'gustav', 'Gustav', '', 'avatar_2.jpg', '', 54654564),
-('e06e069c01144a96904af5246e0b30d7', 'sebschyb.dev@gmail.com', 'scrypt:32768:8:1$wfyUMwcAxZAXhZad$a9828f2a1251205660d524ca1253f44edaf7feee1b3742668170a36538f7fec0e7a539a6673991ae9be17a1476cff81f150486c2acbaa9802da2d3fb98fa712f', 'seb', 'sebastian', '', '', 'dbe5e7fd62c745ef97e11a1e18ce2a26', 0);
-
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `likes`
---
-ALTER TABLE `likes`
-  ADD PRIMARY KEY (`post_fk`,`user_fk`);
-
---
--- Indexes for table `posts`
---
-ALTER TABLE `posts`
-  ADD PRIMARY KEY (`post_pk`),
-  ADD UNIQUE KEY `post_pk` (`post_pk`);
-
---
--- Indexes for table `trends`
---
-ALTER TABLE `trends`
-  ADD UNIQUE KEY `trend_pk` (`trend_pk`);
 
 --
 -- Indexes for table `users`
@@ -157,6 +179,32 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `user_pk` (`user_pk`),
   ADD UNIQUE KEY `user_email` (`user_email`),
   ADD UNIQUE KEY `user_name` (`user_username`);
+
+--
+-- Indexes for table `posts`
+--
+ALTER TABLE `posts`
+  ADD PRIMARY KEY (`post_pk`),
+  ADD UNIQUE KEY `post_pk` (`post_pk`);
+
+--
+-- Indexes for table `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`comment_pk`);
+
+--
+-- Indexes for table `likes`
+--
+ALTER TABLE `likes`
+  ADD UNIQUE KEY `post_fk` (`post_fk`,`user_fk`);
+
+--
+-- Indexes for table `trends`
+--
+ALTER TABLE `trends`
+  ADD UNIQUE KEY `trend_pk` (`trend_pk`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
