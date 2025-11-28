@@ -1059,10 +1059,29 @@ aside {
     border-color: #1d9bf0;
     color: #ffffff;
     font-weight: 700;
+    margin-top: 1rem;
+    width: 100%;
 }
 
 .btn-save-profile:hover {
     background-color: #1a8cd8;
+}
+
+.profile-edit>.x-dialog__form{
+    height: 1rem;
+}
+
+.btn-delete-profile {
+    background-color: #c90404;
+    border-color: #c90404;
+    color: #ffffff;
+    font-weight: 700;
+    /* z-index: 9999;
+    position: absolute; */
+}
+
+.btn-delete-profile:hover {
+    background-color: #860000;
 }
 
 .profile-edit-form {
@@ -1185,6 +1204,9 @@ aside {
         font-size: 0.8125rem;
     }
 }
+
+
+
 
 /* When the profile-edit details is open… */
 .profile-page:has(details.profile-edit[open]) {
