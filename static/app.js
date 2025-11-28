@@ -226,4 +226,8 @@ document.addEventListener("click", function (e) {
     }
 });
 
-document.addEventListener("submit", (e) => closeAllModals());
+document.addEventListener("submit", (e) => {
+    e.preventDefault();
+    closeAllModals();
+    e.target.reset();
+});

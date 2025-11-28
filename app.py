@@ -179,6 +179,7 @@ def home():
             return redirect(url_for("login"))
         db, cursor = x.db()
 
+        # 1. Get tweets
         q = """
         SELECT 
             users.*,
@@ -192,11 +193,45 @@ def home():
             ON posts.post_pk = l_all.post_fk
         GROUP BY posts.post_pk
         ORDER BY RAND()
-        LIMIT 20
+        LIMIT 5
         """
         cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
 
+        # 2. Get all post_pks
+        post_pks = [t["post_pk"] for t in tweets]
+
+        if post_pks:  # Only fetch comments if we have posts
+            # 3. Fetch all comments for these posts
+            q = f"""
+            SELECT 
+                comments.*,
+                users.user_username,
+                users.user_first_name,
+                users.user_last_name,
+                users.user_avatar_path
+            FROM comments
+            JOIN users ON users.user_pk = comments.user_fk
+            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
+            ORDER BY comments.comment_pk ASC
+            """
+            cursor.execute(q, tuple(post_pks))
+            comments = cursor.fetchall()
+
+            # 4. Group comments by post_fk
+            comments_by_post = {pk: [] for pk in post_pks}
+            for c in comments:
+                comments_by_post[c["post_fk"]].append(c)
+
+            # 5. Attach each comment group to its corresponding tweet
+            for t in tweets:
+                t["comments"] = comments_by_post.get(t["post_pk"], [])
+        else:
+            # No posts → no comments
+            for t in tweets:
+                t["comments"] = []
+
+        ic(tweets)
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
         trends = cursor.fetchall()
@@ -205,7 +240,7 @@ def home():
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
 
-        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user, comment="0")
+        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
     except Exception as ex:
         ic(ex)
         return "error"
@@ -265,6 +300,7 @@ def home_comp():
 
         db, cursor = x.db()
 
+        # 1. Get tweets
         q = """
         SELECT 
             users.*,
@@ -282,10 +318,43 @@ def home_comp():
         """
         cursor.execute(q, (user["user_pk"],))
         tweets = cursor.fetchall()
+        
+        # 2. Get all post_pks
+        post_pks = [t["post_pk"] for t in tweets]
+        
+        if post_pks:  # Only fetch comments if we have posts
+            # 3. Fetch all comments for these posts
+            q = f"""
+            SELECT 
+                comments.*,
+                users.user_username,
+                users.user_first_name,
+                users.user_last_name,
+                users.user_avatar_path
+            FROM comments
+            JOIN users ON users.user_pk = comments.user_fk
+            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
+            ORDER BY comments.comment_pk ASC
+            """
+            cursor.execute(q, tuple(post_pks))
+            comments = cursor.fetchall()
+        
+            # 4. Group comments by post_fk
+            comments_by_post = {pk: [] for pk in post_pks}
+            for c in comments:
+                comments_by_post[c["post_fk"]].append(c)
+        
+            # 5. Attach each comment group to its corresponding tweet
+            for t in tweets:
+                t["comments"] = comments_by_post.get(t["post_pk"], [])
+        else:
+            # No posts → no comments
+            for t in tweets:
+                t["comments"] = []
+        
         ic("home-comp fired")
         html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
-
     except Exception as ex:
         ic(ex)
         return "error"
@@ -559,7 +628,7 @@ def api_create_comment(post_pk):
             "user_username": user["user_username"],
             "user_first_name": user["user_first_name"],
             "user_last_name": user["user_last_name"],
-            "comment": comment,
+            "comment_content": comment,
             "comment_pk": comment_pk
         }
         toast_ok = render_template("___toast_ok.html", message="The world is reading your comment!")

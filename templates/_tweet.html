@@ -116,5 +116,6 @@
     class="comments pa-2 border-b-4 border-c-[#e6e6e6]"
     id="comments-{{tweet.post_pk}}"
 >
-    {% include "__comment.html" %}
+    {% for c in tweet.comments %} {% set comment = c %} {% include
+    "__comment.html" %} {% endfor %}
 </div>
