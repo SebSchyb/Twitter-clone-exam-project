@@ -470,7 +470,7 @@ def profile():
 
         profile_html = render_template("_profile.html", user=user, tweets=tweets)
 
-        return f"""<browser mix-update="#main_content">{ profile_html }</browser>"""
+        return f"""<browser mix-update="main">{ profile_html }</browser>"""
 
     except Exception as ex:
         ic(ex)
