@@ -202,19 +202,20 @@ def signup(lan = "english"):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
-
-
+#helperfunction for grabing tweets
 ##############################
-@app.get("/home")
-@x.no_cache
-def home():
-    try:
-        user = session.get("user", "")
-        if not user:
-            return redirect(url_for("login"))
-        db, cursor = x.db()
+def grab_tweets(useronly=False, target_user_pk=None):
+    user = session.get("user", "")
+    if not user:
+        return "error"
 
-        # 1. Get tweets
+    db, cursor = x.db()
+
+    # ----------------------------
+    # Choose SQL query based on mode
+    # ----------------------------
+    if not useronly:
+        # GLOBAL FEED
         q = """
         SELECT 
             users.*,
@@ -228,44 +229,84 @@ def home():
             ON posts.post_pk = l_all.post_fk
         GROUP BY posts.post_pk
         ORDER BY RAND()
-        LIMIT 5
         """
-        cursor.execute(q, (user["user_pk"],))
-        tweets = cursor.fetchall()
+        params = (user["user_pk"],)
 
-        # 2. Get all post_pks
-        post_pks = [t["post_pk"] for t in tweets]
+    else:
+        # USER-ONLY FEED — MUST have a target user
+        if not target_user_pk:
+            target_user_pk = user["user_pk"]   # default to the logged in user
 
-        if post_pks:  # Only fetch comments if we have posts
-            # 3. Fetch all comments for these posts
-            q = f"""
-            SELECT 
-                comments.*,
-                users.user_username,
-                users.user_first_name,
-                users.user_last_name,
-                users.user_avatar_path
-            FROM comments
-            JOIN users ON users.user_pk = comments.user_fk
-            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
-            ORDER BY comments.comment_pk ASC
-            """
-            cursor.execute(q, tuple(post_pks))
-            comments = cursor.fetchall()
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
+        FROM posts
+        JOIN users 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
+        WHERE posts.post_user_fk = %s
+        GROUP BY posts.post_pk
+        ORDER BY posts.post_pk DESC
+        """
+        params = (user["user_pk"], target_user_pk)
 
-            # 4. Group comments by post_fk
-            comments_by_post = {pk: [] for pk in post_pks}
-            for c in comments:
-                comments_by_post[c["post_fk"]].append(c)
+    # ----------------------------
+    # Execute selected query
+    # ----------------------------
+    cursor.execute(q, params)
+    tweets = cursor.fetchall()
 
-            # 5. Attach each comment group to its corresponding tweet
-            for t in tweets:
-                t["comments"] = comments_by_post.get(t["post_pk"], [])
-        else:
-            # No posts → no comments
-            for t in tweets:
-                t["comments"] = []
+    # ----------------------------
+    # Attach comments
+    # ----------------------------
+    post_pks = [t["post_pk"] for t in tweets]
 
+    if post_pks:
+        q = f"""
+        SELECT 
+            comments.*,
+            users.user_username,
+            users.user_first_name,
+            users.user_last_name,
+            users.user_avatar_path
+        FROM comments
+        JOIN users ON users.user_pk = comments.user_fk
+        WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
+        ORDER BY comments.comment_pk ASC
+        """
+        cursor.execute(q, tuple(post_pks))
+        comments = cursor.fetchall()
+
+        # Group comments by post
+        comments_by_post = {pk: [] for pk in post_pks}
+        for c in comments:
+            comments_by_post[c["post_fk"]].append(c)
+
+        # Attach comments to each tweet
+        for t in tweets:
+            t["comments"] = comments_by_post.get(t["post_pk"], [])
+    else:
+        for t in tweets:
+            t["comments"] = []
+
+    return tweets
+
+
+
+##############################
+@app.get("/home")
+@x.no_cache
+def home():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return redirect(url_for("login"))
+        db, cursor = x.db();
+        tweets = grab_tweets(useronly=False)
         ic(tweets)
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
@@ -416,15 +457,16 @@ def profile():
         if not user:
             return "error"
 
-        q_posts = """
-            SELECT *
-            FROM posts
-            JOIN users ON user_pk = post_user_fk
-            WHERE post_user_fk = %s
-            ORDER BY post_pk DESC
-        """
-        cursor.execute(q_posts, (user["user_pk"],))
-        tweets = cursor.fetchall()
+        # q_posts = """
+        #     SELECT *
+        #     FROM posts
+        #     JOIN users ON user_pk = post_user_fk
+        #     WHERE post_user_fk = %s
+        #     ORDER BY post_pk DESC
+        # """
+        # cursor.execute(q_posts, (user["user_pk"],))
+        # tweets = cursor.fetchall()
+        tweets = grab_tweets(useronly=True, target_user_pk=session_user["user_pk"])
 
         profile_html = render_template("_profile.html", user=user, tweets=tweets)
 
