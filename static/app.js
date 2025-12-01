@@ -176,7 +176,39 @@ document.addEventListener("click", async function (event) {
     //     return;
     // }
 });
+//Handle follow/unfollow
+// ##############################
+document.addEventListener("click", async function (event) {
+    const btn = event.target.closest(".follow-button");
+    if (!btn) return;
 
+    event.preventDefault();
+    const userPk = btn.dataset.user;
+
+    btn.disabled = true;
+
+    const resp = await fetch("/toggle_follow", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_pk: userPk }),
+    });
+
+    const data = await resp.json();
+
+    if (data.followed) {
+        btn.textContent = "Unfollow";
+        btn.classList.remove("bg-c-black");
+        btn.classList.add("bg-c-blue");
+    } else {
+        btn.textContent = "Follow";
+        btn.classList.add("bg-c-black");
+        btn.classList.remove("bg-c-blue");
+    }
+
+    btn.disabled = false;
+});
 // Close details when clicking
 //  ##############################
 document.addEventListener("click", (e) => {

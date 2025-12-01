@@ -202,7 +202,7 @@ def signup(lan = "english"):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
-#helperfunction for grabing tweets
+#helper function for grabbing tweets
 ##############################
 def grab_tweets(useronly=False, target_user_pk=None):
     user = session.get("user", "")
@@ -307,7 +307,7 @@ def home():
             return redirect(url_for("login"))
         db, cursor = x.db();
         tweets = grab_tweets(useronly=False)
-        ic(tweets)
+        
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
         cursor.execute(q)
         trends = cursor.fetchall()
@@ -480,13 +480,55 @@ def profile():
         if "db" in locals(): db.close()
 
 
+##############################
+@app.post("/toggle_follow")
+def toggle():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "error"
+        data = request.get_json() or {}
+        user_pk = data.get("user_pk")
+        if not user_pk:
+            return jsonify({"error": "missing_user_pk"}), 400
+        db, cursor = x.db()
+        # check if the user is already following
+        q = "SELECT COUNT(*) AS cnt FROM follows WHERE user_fk = %s AND follower_fk = %s"
+        cursor.execute(q, (user_pk, user["user_pk"]))
+        already = cursor.fetchone()["cnt"] > 0
 
+        if already:
+            # unfollow (delete)
+            q = "DELETE FROM follows WHERE user_fk = %s AND follower_fk = %s"
+            cursor.execute(q, (user_pk, user["user_pk"]))
+            db.commit()
+            followed = False
+        else:
+            # follow (insert)
+            q = "INSERT INTO follows (user_fk, follower_fk) VALUES (%s, %s)"
+            try:
+                cursor.execute(q, (user_pk, user["user_pk"]))
+                db.commit()
+            except Exception as e:
+                # handle race/duplicate gracefully
+                db.rollback()
+            followed = True
 
+        # get updated follower count
+        q = "SELECT COUNT(*) AS cnt FROM follows WHERE user_fk = %s"
+        cursor.execute(q, (user_pk,))
+        follower_count = cursor.fetchone()["cnt"]
 
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
-
-
-
+        return jsonify({"followed": followed, "follower_count": follower_count})
+    except Exception as ex:
+        ic(ex)
+        return "Error"
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 
 
@@ -526,6 +568,7 @@ def toggle_like():
                 db.commit()
             except Exception as e:
                 # handle race/duplicate gracefully
+                ic(e)
                 db.rollback()
             liked = True
 
@@ -534,11 +577,10 @@ def toggle_like():
         cursor.execute(q, (post_pk,))
         like_count = cursor.fetchone()["cnt"]
 
-        # safe close
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-        return jsonify({"liked": liked, "like_count": like_count})
+        return jsonify({"followed": liked, "like_count": like_count})
     except Exception as ex:
         ic(ex)
         try:

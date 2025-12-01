@@ -11,8 +11,10 @@
             </span>
             <span class="handle">@{{ tweet.user_username }}</span> ·
             <span class="time">1d</span>
+            <!--Render only if NOT users own tweet-->
+            {% if tweet.post_user_fk != user.user_pk %} {% include
+            "__follow_button.html" %} {% endif %}
             <!--Render only if users own tweet-->
-
             {% if tweet.post_user_fk == user.user_pk: %}
             <details class="menu">
                 <summary class="edit">
