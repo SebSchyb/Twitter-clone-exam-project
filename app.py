@@ -37,7 +37,7 @@ def _____USER_____(): pass
 
 @app.get("/")
 def view_index():
-   
+
     return render_template("index.html")
 
 ##############################
@@ -303,6 +303,7 @@ def grab_tweets(useronly=False, target_user_pk=None):
 def home():
     try:
         user = session.get("user", "")
+        ic(user)
         if not user:
             return redirect(url_for("login"))
         db, cursor = x.db();
@@ -888,13 +889,28 @@ def api_search():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
+@app.get("/test-admin-route")
+def test_admin_route():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "No user found"
+        if not user["user_is_admin"] == 1:
+            return "Not allowed for non-admin users."
+        ic("success")
+        return "Success"
+    except Exception as ex:
+        ic(ex)
 
 ##############################
 @app.get("/get-data-from-sheet")
 def get_data_from_sheet():
     try:
-
+        user = session.get("user", "")
+        if not user:
+            return "No user found"
+        if not user["user_is_admin"] == 1:
+            return "Not allowed for non-admin users."
         # Check if the admin is running this end-point, else show error
 
         # flaskwebmail

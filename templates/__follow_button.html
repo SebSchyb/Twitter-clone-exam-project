@@ -5,5 +5,6 @@
     id="follow-{{user.user_pk}}"
     data-user="{{user.user_pk}}"
 >
-    {% if user.followed|int %} Unfollow {% else %} Follow {%endif%}
+    <!--TODO sæt til followed-->
+    {% if user.user_pk|int %} Unfollow {% else %} Follow {%endif%}
 </button>
