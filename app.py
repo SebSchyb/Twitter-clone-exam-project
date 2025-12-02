@@ -929,6 +929,7 @@ def admin_block_post():
         if not post:
             toast_error = render_template("___toast_error.html", message="Post does not exist")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        
         # Check if post is already blocked
         q = "SELECT * FROM posts WHERE post_pk = %s AND post_is_blocked = 1"
         cursor.execute(q, (post_pk,))
@@ -936,12 +937,23 @@ def admin_block_post():
         if post:
             toast_error = render_template("___toast_error.html", message="Post is already blocked")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        
         # Update record in db
         q = "UPDATE posts SET post_is_blocked = 1 WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         db.commit()
         # Send email to user
-
+        q = """
+        SELECT users.user_email
+        FROM users
+        JOIN posts ON users.user_pk = posts.post_user_fk
+        WHERE posts.post_pk = %s
+        """
+        cursor.execute(q, (post_pk,))
+        email = cursor.fetchone()
+        user_email = email["user_email"]
+        email_html = f'Your post has been blocked because an admin thought it to be inappropriate'
+        x.send_email(user_email, "Note from admin", email_html)
         toast_ok = render_template("___toast_ok.html", message="Post is now blocked")
         return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
         
@@ -952,6 +964,70 @@ def admin_block_post():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
+
+##############################
+@app.patch("/admin-block-user")
+def admin_block_user():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "No user found"
+
+        # Must be admin
+        if user.get("user_is_admin") != 1:
+            return "Not allowed for non-admin users.", 400
+
+        target_user_pk = request.form.get("block-user-input", "").strip()
+        ic(target_user_pk)
+
+        db, cursor = x.db()
+
+        # 1. Does the user exist?
+        q = "SELECT * FROM users WHERE user_pk = %s"
+        cursor.execute(q, (target_user_pk,))
+        target_user = cursor.fetchone()
+
+        if not target_user:
+            toast_error = render_template("___toast_error.html",
+                                          message="User does not exist")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # 2. Is the user already blocked?
+        if target_user["user_is_blocked"] == 1:
+            toast_error = render_template("___toast_error.html",
+                                          message="User is already blocked")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+        # 3. Block the user
+        q = "UPDATE users SET user_is_blocked = 1 WHERE user_pk = %s"
+        cursor.execute(q, (target_user_pk,))
+        db.commit()
+
+        # 4. Email the user
+        user_email = target_user["user_email"]
+        email_html = (
+            "Your account has been blocked by an administrator due to a "
+            "violation of our community guidelines."
+        )
+
+        x.send_email(user_email, "Account Blocked", email_html)
+
+        # 5. Toast
+        toast_ok = render_template("___toast_ok.html",
+                                   message="User is now blocked")
+        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
+
+    except Exception as ex:
+        ic(ex)
+        toast_error = render_template("___toast_error.html",
+                                      message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
 ##############################
 @app.get("/get-data-from-sheet")
 def get_data_from_sheet():

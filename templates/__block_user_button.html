@@ -1,0 +1,12 @@
+<form action="/admin-block-user" method="post" mixpatch>
+    <input name="block-user-input" value="{{tweet.post_pk}}" />
+    <button
+        type="submit"
+        type="submit"
+        class="block-btn cursor-pointer"
+        mix-default="Block"
+        mix-await="Please Wait..."
+    >
+        Block user
+    </button>
+</form>
