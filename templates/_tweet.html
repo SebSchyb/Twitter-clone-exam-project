@@ -1,4 +1,7 @@
-<article class="post tweet" id="tweet-{{tweet.post_pk}}">
+<article
+    class="post tweet {{ 'blocked' if tweet.post_is_blocked else '' }}"
+    id="tweet-{{tweet.post_pk}}"
+>
     <img
         src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
         alt="Profile Picture"
@@ -11,11 +14,12 @@
             </span>
             <span class="handle">@{{ tweet.user_username }}</span> ·
             <span class="time">1d</span>
+
             <!--Render only if NOT users own tweet-->
             {% if tweet.post_user_fk != user.user_pk %} {% include
             "__follow_button.html" %} {% endif %}
-            <!--Render only if users own tweet-->
-            {% if tweet.post_user_fk == user.user_pk: %}
+            <!--Render only if users own tweet or if user is admin -->
+            {% if tweet.post_user_fk == user.user_pk or user.user_is_admin %}
             <details class="menu">
                 <summary class="edit">
                     <i class="fa-solid fa-ellipsis"></i>
@@ -32,6 +36,23 @@
                     >
                         Delete
                     </button>
+                    <!-- Only render block if user is admin -->
+                    {% if user.user_is_admin == 1 %}
+                    <form
+                        action="/admin-block-post"
+                        mix-patch
+                        data-post="{{tweet.post_pk}}"
+                    >
+                        <input
+                            type="hidden"
+                            name="block-input"
+                            value="{{tweet.post_pk}}"
+                        />
+                        <button type="submit" class="block-btn cursor-pointer">
+                            Block
+                        </button>
+                    </form>
+                    {%endif%}
                 </div>
             </details>
             <!-- EDIT MODAL -->

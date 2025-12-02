@@ -606,6 +606,11 @@ def api_edit_post(post_pk):
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
+        # User must not be blocked
+        if user["user_is_blocked"] == 1:
+            toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        
         # FormData input (NOT JSON)
         message = request.form.get("message", "").strip()
 
@@ -716,6 +721,10 @@ def api_create_post():
     try:
         user = session.get("user", "")   
         if not user: return "invalid user"
+                # User must not be blocked
+        if user["user_is_blocked"] == 1:
+            toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
         user_pk = user["user_pk"]   
         post = x.validate_post(request.form.get("post", ""))
         post_pk = uuid.uuid4().hex
@@ -897,11 +906,52 @@ def test_admin_route():
             return "No user found"
         if not user["user_is_admin"] == 1:
             return "Not allowed for non-admin users."
-        ic("success")
         return "Success"
     except Exception as ex:
         ic(ex)
 
+##############################
+@app.patch("/admin-block-post")
+def admin_block_post():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "No user found"
+        if not user["user_is_admin"] == 1:
+            return "Not allowed for non-admin users.", 400
+        post_pk = request.form.get("block-input", "").strip()
+        ic(post_pk)
+        db, cursor = x.db()
+        # Grap post and check if deleted
+        q = "SELECT * FROM posts WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        post = cursor.fetchone()
+        if not post:
+            toast_error = render_template("___toast_error.html", message="Post does not exist")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        # Check if post is already blocked
+        q = "SELECT * FROM posts WHERE post_pk = %s AND post_is_blocked = 1"
+        cursor.execute(q, (post_pk,))
+        post = cursor.fetchone()
+        if post:
+            toast_error = render_template("___toast_error.html", message="Post is already blocked")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        # Update record in db
+        q = "UPDATE posts SET post_is_blocked = 1 WHERE post_pk = %s"
+        cursor.execute(q, (post_pk,))
+        db.commit()
+        # Send email to user
+
+        toast_ok = render_template("___toast_ok.html", message="Post is now blocked")
+        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
+        
+    except Exception as ex:
+        ic(ex)
+        toast_error = render_template("___toast_error.html", message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 ##############################
 @app.get("/get-data-from-sheet")
 def get_data_from_sheet():
