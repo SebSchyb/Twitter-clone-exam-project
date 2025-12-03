@@ -10,7 +10,8 @@
         type="button"
         class="rounded-lg px-4 py-1 text-c-white bg-c-red cursor-pointer ts-200 mx-2"
         hover="bg-c-red[40]"
-        mix-default="Please wait..."
+        mix-default="Block"
+        mix-await="Please wait..."
         onclick="
             if (confirm('Confirm action?')) {
                 this.closest('form').requestSubmit();
