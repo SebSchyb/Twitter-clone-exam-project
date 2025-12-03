@@ -751,8 +751,8 @@ def api_create_post():
         post_pk = uuid.uuid4().hex
         post_image_path = ""
         db, cursor = x.db()
-        q = "INSERT INTO posts VALUES(%s, %s, %s, %s, %s)"
-        cursor.execute(q, (post_pk, user_pk, post, 0, post_image_path))
+        q = "INSERT INTO posts VALUES(%s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (post_pk, user_pk, post, 0, post_image_path, 0))
         db.commit()
         toast_ok = render_template("___toast_ok.html", message="The world is reading your post!")
         tweet = {
