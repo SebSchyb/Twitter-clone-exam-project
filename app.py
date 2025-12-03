@@ -232,7 +232,7 @@ def grab_tweets(useronly=False, target_user_pk=None):
             ON posts.post_pk = l_all.post_fk
         WHERE posts.post_is_blocked = 0
         GROUP BY posts.post_pk
-        ORDER BY RAND()
+        ORDER BY posts.post_pk DESC
         """
         params = (user["user_pk"],)
 
@@ -410,7 +410,7 @@ def home_comp():
         LEFT JOIN likes l_all
             ON posts.post_pk = l_all.post_fk
         GROUP BY posts.post_pk
-        ORDER BY RAND()
+        ORDER BY posts.post_pk DESC
         LIMIT 5
         """
         cursor.execute(q, (user["user_pk"],))
