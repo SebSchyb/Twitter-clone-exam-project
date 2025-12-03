@@ -20,7 +20,8 @@
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
-                {% if is_me %}
+                {% include "__block_user_button.html" %} {% if not is_me %} {%
+                include "__follow_button.html"%} {%endif%} {% if is_me %}
                 <details class="profile-edit">
                     <summary class="btn btn-edit-profile">
                         <i class="fa fa-pencil"></i>

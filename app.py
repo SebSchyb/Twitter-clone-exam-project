@@ -397,58 +397,7 @@ def home_comp():
 
         db, cursor = x.db()
 
-        # 1. Get tweets
-        q = """
-        SELECT 
-            users.*,
-            posts.*,
-            COUNT(l_all.user_fk) AS like_count,
-            SUM(l_all.user_fk = %s) AS liked
-        FROM users
-        JOIN posts 
-            ON users.user_pk = posts.post_user_fk
-        LEFT JOIN likes l_all
-            ON posts.post_pk = l_all.post_fk
-        GROUP BY posts.post_pk
-        ORDER BY RAND()
-        LIMIT 5
-        """
-        cursor.execute(q, (user["user_pk"],))
-        tweets = cursor.fetchall()
-        
-        # 2. Get all post_pks
-        post_pks = [t["post_pk"] for t in tweets]
-        
-        if post_pks:  # Only fetch comments if we have posts
-            # 3. Fetch all comments for these posts
-            q = f"""
-            SELECT 
-                comments.*,
-                users.user_username,
-                users.user_first_name,
-                users.user_last_name,
-                users.user_avatar_path
-            FROM comments
-            JOIN users ON users.user_pk = comments.user_fk
-            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
-            ORDER BY comments.comment_pk ASC
-            """
-            cursor.execute(q, tuple(post_pks))
-            comments = cursor.fetchall()
-        
-            # 4. Group comments by post_fk
-            comments_by_post = {pk: [] for pk in post_pks}
-            for c in comments:
-                comments_by_post[c["post_fk"]].append(c)
-        
-            # 5. Attach each comment group to its corresponding tweet
-            for t in tweets:
-                t["comments"] = comments_by_post.get(t["post_pk"], [])
-        else:
-            # No posts → no comments
-            for t in tweets:
-                t["comments"] = []
-        
+        tweets = grab_tweets(useronly=False)
         ic("home-comp fired")
         html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
@@ -1211,8 +1160,20 @@ def user_profile(username):
 
         db, cursor = x.db()
 
-        q_user = "SELECT * FROM users WHERE user_username = %s"
-        cursor.execute(q_user, (username,))
+        # q_user = "SELECT * FROM users WHERE user_username = %s"
+        q_user = """SELECT 
+            users.*,
+            EXISTS(
+                SELECT 1 
+                FROM follows 
+                WHERE follows.user_fk = users.user_pk
+                AND follows.follower_fk = %s
+            ) AS followed
+        FROM users
+        WHERE users.user_username = %s
+        LIMIT 1;
+        """
+        cursor.execute(q_user, (session_user["user_pk"], username,))
         user = cursor.fetchone()
         if not user:
             return "error user not found"
