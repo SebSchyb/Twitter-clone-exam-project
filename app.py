@@ -967,63 +967,67 @@ def admin_block_post():
 @app.patch("/admin-block-user")
 def admin_block_user():
     try:
-        user = session.get("user", "")
-        if not user:
-            return "No user found"
+        admin = session.get("user", "")
+        if not admin:
+            return "No admin user found"
 
         # Must be admin
-        if user.get("user_is_admin") != 1:
+        if admin.get("user_is_admin") != 1:
             return "Not allowed for non-admin users.", 400
 
-        target_user_pk = request.form.get("block-user-input", "").strip()
-        ic(target_user_pk)
+        user_pk = request.form.get("block-user-input", "").strip()
+        ic(user_pk)
 
         db, cursor = x.db()
 
-        # 1. Does the user exist?
+        # 1. Fetch the user to toggle
         q = "SELECT * FROM users WHERE user_pk = %s"
-        cursor.execute(q, (target_user_pk,))
-        target_user = cursor.fetchone()
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
 
-        if not target_user:
-            toast_error = render_template("___toast_error.html",
-                                          message="User does not exist")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        if not user:
+            toast = render_template("___toast_error.html", message="User does not exist")
+            return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
-        # 2. Is the user already blocked?
-        if target_user["user_is_blocked"] == 1:
-            toast_error = render_template("___toast_error.html",
-                                          message="User is already blocked")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        is_blocked = user["user_is_blocked"]
 
-        # 3. Block the user
-        q = "UPDATE users SET user_is_blocked = 1 WHERE user_pk = %s"
-        cursor.execute(q, (target_user_pk,))
+        # 2. Toggle
+        new_state = 1 if is_blocked == 0 else 0
+
+        q = "UPDATE users SET user_is_blocked = %s WHERE user_pk = %s"
+        cursor.execute(q, (new_state, user_pk))
         db.commit()
 
-        # 4. Email the user
-        user_email = target_user["user_email"]
-        email_html = (
-            "Your account has been blocked by an administrator due to a "
-            "violation of our community guidelines."
+        # 3. Send email
+        if new_state == 1:
+            email_html = "Your account has been blocked by an administrator."
+            x.send_email(user["user_email"], "Account Blocked", email_html)
+            toast = render_template("___toast_ok.html", message="User is now blocked")
+        else:
+            email_html = "Your account has been unblocked by an administrator."
+            x.send_email(user["user_email"], "Account Unblocked", email_html)
+            toast = render_template("___toast_ok.html", message="User is now unblocked")
+
+        # 4. Render updated button
+        updated_button_html = render_template(
+            "__admin_toggle_user_button.html",
+            user={**user, "user_is_blocked": new_state}
         )
 
-        x.send_email(user_email, "Account Blocked", email_html)
-
-        # 5. Toast
-        toast_ok = render_template("___toast_ok.html",
-                                   message="User is now blocked")
-        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
+        return f"""
+            <browser mix-bottom="#toast">{toast}</browser>
+            <browser mix-replace="#toggle-user-{user_pk}">{updated_button_html}</browser>
+        """
 
     except Exception as ex:
         ic(ex)
-        toast_error = render_template("___toast_error.html",
-                                      message="System Error")
-        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        toast = render_template("___toast_error.html", message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 ##############################
 @app.get("/get-data-from-sheet")
