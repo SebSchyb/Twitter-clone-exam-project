@@ -24,7 +24,10 @@
                         <span>Edit profile</span>
                     </summary>
                     <div class="profile-edit-form">
-                        <form mix-post="/api-update-profile">
+
+                        <form action="{{ url_for('api_update_profile') }}" method="POST" enctype="multipart/form-data"
+                            mix-post>
+
 
                             <button type="button" class="close-edit"><i class="fa-solid fa-x"></i></button>
                             <label class="profile-field">
@@ -48,8 +51,8 @@
                             </label>
 
                             <label class="profile-field">
-                                <span>Avatar filename (in /static/images)</span>
-                                <input type="text" name="user_avatar_path" value="{{ user.user_avatar_path or "" }}">
+                                <span>Avatar</span>
+                                <input type="file" name="user_avatar" accept="image/*">
                             </label>
 
 

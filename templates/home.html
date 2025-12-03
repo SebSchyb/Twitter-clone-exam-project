@@ -64,7 +64,8 @@
 
             <a href="/profile" mix-get>
                 <div id="profile_tag" class="pointer-e-none">
-                    <img src="{{ url_for('static', filename='images/avatar_1.jpg') }}" alt="Profile">
+                    <img src="{{ url_for('static', filename='images/'~(user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
+                        alt="Profile Picture" />
                     <div>
                         <div class="name">
                             {{ user.user_first_name }}

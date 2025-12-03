@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 from flask_session import Session
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
 import gspread
 import requests
 import json
@@ -12,6 +13,8 @@ import x
 import dictionary
 import io
 import csv
+from pathlib import Path
+from flask import current_app
 
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -20,8 +23,9 @@ ic.configureOutput(prefix=f'----- | ', includeContext=True)
 
 app = Flask(__name__)
 
-# Set the maximum file size to 10 MB
-app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024   # 1 MB
+app.config['UPLOAD_FOLDER'] = Path(app.root_path) / 'static' / 'images'
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif']
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # e.g. 2 MB
 
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -111,7 +115,6 @@ def api_delete_profile():
             return "error", 400
 
         db, cursor = x.db()
-        #verify dinmor
         q = "SELECT user_pk FROM users WHERE user_pk = %s"
         cursor.execute(q, (user["user_pk"],))
         row = cursor.fetchone()
@@ -760,17 +763,38 @@ def api_create_comment(post_pk):
 
 
 ##############################
+
 @app.route("/api-update-profile", methods=["POST"])
 def api_update_profile():
     try:
         user = session.get("user", "")
-        if not user: return "invalid user"
+        if not user: 
+            return "invalid user"
 
         user_email = x.validate_user_email()
         user_username = x.validate_user_username()
         user_first_name = x.validate_user_first_name()
         user_bio = request.form.get("user_bio", "").strip()
-        user_avatar_path = request.form.get("user_avatar_path", "").strip()
+
+        uploaded_file = request.files.get("user_avatar")
+        user_avatar_path = user.get("user_avatar_path", "")
+
+        if uploaded_file and uploaded_file.filename:
+            filename = secure_filename(uploaded_file.filename)
+            file_ext = os.path.splitext(filename)[1].lower()
+
+            if file_ext not in current_app.config['UPLOAD_EXTENSIONS']:
+                raise Exception("File type not allowed", 400)
+
+            filename = f"user_{user['user_pk']}_avatar{file_ext}"
+
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            upload_folder.mkdir(parents=True, exist_ok=True)
+
+            save_path = upload_folder / filename
+            uploaded_file.save(save_path)
+
+            user_avatar_path = filename
 
         db, cursor = x.db()
         q = """
@@ -792,7 +816,15 @@ def api_update_profile():
         ))
         db.commit()
 
+        user["user_email"] = user_email
+        user["user_username"] = user_username
+        user["user_first_name"] = user_first_name
+        user["user_bio"] = user_bio
+        user["user_avatar_path"] = user_avatar_path
+        session["user"] = user
+
         toast_ok = render_template("___toast_ok.html", message="Profile updated successfully")
+
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-update="#profile_tag .name">{user_first_name}</browser>
@@ -802,26 +834,24 @@ def api_update_profile():
     
     except Exception as ex:
         ic(ex)
-        # User errors
-        if ex.args[1] == 400:
+        if len(ex.args) > 1 and ex.args[1] == 400:
             toast_error = render_template("___toast_error.html", message=ex.args[0])
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
-        # Database errors
-        if "Duplicate entry" and user_email in str(ex): 
+        if "Duplicate entry" in str(ex) and user_email in str(ex): 
             toast_error = render_template("___toast_error.html", message="Email already registered")
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
-        if "Duplicate entry" and user_username in str(ex): 
+        if "Duplicate entry" in str(ex) and user_username in str(ex): 
             toast_error = render_template("___toast_error.html", message="Username already registered")
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
-        # System or developer error
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 
 
@@ -967,3 +997,38 @@ def reset_password(reset_key):
         finally:
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
+##########
+
+
+@app.get("/<username>")
+def user_profile(username):
+    try:
+        session_user = session.get("user", "")
+        if not session_user:
+            return redirect(url_for("login"))
+
+        db, cursor = x.db()
+
+        q_user = "SELECT * FROM users WHERE user_username = %s"
+        cursor.execute(q_user, (username,))
+        user = cursor.fetchone()
+        if not user:
+            return "error user not found"
+
+        tweets = grab_tweets(useronly=True, target_user_pk=user["user_pk"])
+
+        is_me = session_user["user_pk"] == user["user_pk"]
+
+        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=is_me)
+
+        return f"""<browser mix-update="main">{ profile_html }</browser>"""
+
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+###
