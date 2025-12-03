@@ -1162,8 +1162,10 @@ def forgot_password():
             email_html = f'To reset your password, click here: <a href="{reset_url}">Reset password</a>'
             x.send_email(user_email, "Reset your password", email_html)
 
-
-            return f"<browser mix-update='#toast'>Password reset email sent.</browser>"
+            toast_ok = render_template("___toast_ok.html", message="Password reset email sent")
+            return f"""
+            <browser mix-bottom="#toast">{ toast_ok }</browser>
+            """
 
         except Exception as ex:
             toast = render_template("___toast_error.html", message=ex.args[0])
