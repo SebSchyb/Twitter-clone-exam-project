@@ -1,10 +1,7 @@
-<article class="post tweet" id="tweet-{{tweet.post_pk}}">
+<article class="post tweet {{ 'blocked' if tweet.post_is_blocked else '' }}" id="tweet-{{tweet.post_pk}}">
     <a href="/{{tweet.user_username}}" mix-get>
-        <img
-            src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
-            alt="Profile Picture"
-            class="w-8 h-8 rounded-full name pointer-e-none"
-        />
+        <img src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+            alt="Profile Picture" class="w-8 h-8 rounded-full name pointer-e-none" />
     </a>
     <div class="post-content">
         <div class="post-header">
@@ -14,15 +11,16 @@
                 </span>
             </a>
             <a href="/{{ tweet.user_username }}" mix-get>
-                <span class="handle name pointer-e-none"
-                    >@{{ tweet.user_username }}</span
-                >
+                <span class="handle name pointer-e-none">@{{ tweet.user_username }}</span>
                 ·
             </a>
             <span class="time">1d</span>
-            <!--Render only if users own tweet-->
 
-            {% if tweet.post_user_fk == user.user_pk: %}
+            <!--Render only if NOT users own tweet-->
+            {% if tweet.post_user_fk != user.user_pk %} {% include
+            "__follow_button.html" %} {% endif %}
+            <!--Render only if users own tweet or if user is admin -->
+            {% if tweet.post_user_fk == user.user_pk or user.user_is_admin %}
             <details class="menu">
                 <summary class="edit">
                     <i class="fa-solid fa-ellipsis"></i>
@@ -32,42 +30,36 @@
                     <button data-post="{{tweet.post_pk}}" class="edit-btn">
                         Edit
                     </button>
-                    <button
-                        data-post="{{tweet.post_pk}}"
-                        class="delete delete-btn"
-                        mix-delete="/api-delete-post/{{tweet.post_pk}}"
-                    >
+                    <button data-post="{{tweet.post_pk}}" class="delete delete-btn"
+                        mix-delete="/api-delete-post/{{tweet.post_pk}}">
                         Delete
                     </button>
+                    <!-- Only render block if user is admin -->
+                    {% if user.user_is_admin == 1 %}
+                    <form action="/admin-block-post" mix-patch data-post="{{tweet.post_pk}}">
+                        <input type="hidden" name="block-input" value="{{tweet.post_pk}}" />
+                        <button type="submit" class="block-btn cursor-pointer" mix-default="Block"
+                            mix-await="Please Wait...">
+                            Block
+                        </button>
+                    </form>
+                    {%endif%}
                 </div>
             </details>
             <!-- EDIT MODAL -->
             <div id="editModal-{{tweet.post_pk}}" class="modal hidden">
                 <div class="modal-content">
-                    <span id="closeEditModal-{{tweet.post_pk}}" class="close"
-                        >&times;</span
-                    >
+                    <span id="closeEditModal-{{tweet.post_pk}}" class="close">&times;</span>
 
                     <h2>Edit Post</h2>
-                    <form
-                        id="editForm-{{tweet.post_pk}}"
-                        action="/api-edit-post/{{tweet.post_pk}}"
-                        mix-patch
-                    >
+                    <form id="editForm-{{tweet.post_pk}}" action="/api-edit-post/{{tweet.post_pk}}" mix-patch>
                         <!-- <input type="hidden" id="editPostId" /> -->
-                        <textarea
-                            class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
-                            id="editText-{{tweet.post_pk}}"
-                            rows="5"
-                            name="message"
-                        >
-{{ tweet.post_message }}</textarea
-                        >
+                        <textarea class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
+                            id="editText-{{tweet.post_pk}}" rows="5" name="message">
+{{ tweet.post_message }}</textarea>
 
-                        <button
-                            class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
-                            type="submit"
-                        >
+                        <button class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
+                            type="submit">
                             Update Post
                         </button>
                     </form>
@@ -80,55 +72,32 @@
             {{ tweet.post_message }}
         </p>
         {% if tweet.post_image_path: %}
-        <img
-            src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}"
-            alt="Post image"
-            class="w-80"
-        />
+        <img src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}" alt="Post image" class="w-80" />
         {% endif %}
 
         <div class="post-actions">
-            <span class="action"
-                ><i class="fa-regular fa-comment"></i> {% if
+            <span class="action"><i class="fa-regular fa-comment"></i> {% if
                 tweet.comments|length > 0 %} {{ tweet.comments|length }} {%
-                endif %}</span
-            >
+                endif %}</span>
             <span class="action"><i class="fa-solid fa-retweet"></i> 5</span>
             {% include "___like_button.html" %}
-            <span class="action"
-                ><i class="fa-solid fa-chart-simple"></i> 230</span
-            >
+            <span class="action"><i class="fa-solid fa-chart-simple"></i> 230</span>
             <span class="action"><i class="fa-solid fa-share"></i></span>
         </div>
     </div>
 </article>
-<form
-    class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md"
-    mix-post="/api-create-comment/{{tweet.post_pk}}"
->
-    <img
-        src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
-        alt="Profile Picture"
-        class="w-8 h-8 rounded-full"
-    />
-    <textarea
-        name="comment"
-        id=""
-        class="w-full pa-2"
-        placeholder="Post your reply"
-        rows="1"
-    ></textarea>
+<form class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md"
+    mix-post="/api-create-comment/{{tweet.post_pk}}">
+    <img src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+        alt="Profile Picture" class="w-8 h-8 rounded-full" />
+    <textarea name="comment" id="" class="w-full pa-2" placeholder="Post your reply" rows="1"></textarea>
     <button
         class="w-auto m-auto bg-c-transparent text-c-black[40] border-1 border-s-solid border-c-black[40] py-2 px-6 rounded-xl cursor-pointer"
-        type="submit"
-    >
+        type="submit">
         Reply
     </button>
 </form>
-<div
-    class="comments pa-2 border-b-4 border-c-[#e6e6e6]"
-    id="comments-{{tweet.post_pk}}"
->
+<div class="comments pa-2 border-b-4 border-c-[#e6e6e6]" id="comments-{{tweet.post_pk}}">
     {% for c in tweet.comments %} {% set comment = c %} {% include
     "__comment.html" %} {% endfor %}
 </div>

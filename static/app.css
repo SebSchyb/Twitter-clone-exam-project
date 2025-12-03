@@ -1067,7 +1067,7 @@ aside {
     background-color: #1a8cd8;
 }
 
-.profile-edit>.x-dialog__form{
+.profile-edit > .x-dialog__form {
     height: 1rem;
 }
 
@@ -1205,9 +1205,6 @@ aside {
     }
 }
 
-
-
-
 /* When the profile-edit details is open… */
 .profile-page:has(details.profile-edit[open]) {
     position: relative;
@@ -1295,4 +1292,7 @@ details.profile-edit .close-edit:hover {
     right: 14px;
     cursor: pointer;
     font-size: 22px;
+}
+.blocked {
+    outline: 1px solid red;
 }
