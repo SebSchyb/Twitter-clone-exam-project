@@ -489,7 +489,7 @@ def profile():
         # tweets = cursor.fetchall()
         tweets = grab_tweets(useronly=True, target_user_pk=session_user["user_pk"])
 
-        profile_html = render_template("_profile.html", user=user, tweets=tweets)
+        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True)
 
         return f"""<browser mix-update="main">{ profile_html }</browser>"""
         
