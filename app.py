@@ -227,6 +227,7 @@ def grab_tweets(useronly=False, target_user_pk=None):
             ON users.user_pk = posts.post_user_fk
         LEFT JOIN likes l_all
             ON posts.post_pk = l_all.post_fk
+        WHERE posts.post_is_blocked = 0
         GROUP BY posts.post_pk
         ORDER BY RAND()
         """
@@ -253,6 +254,22 @@ def grab_tweets(useronly=False, target_user_pk=None):
         ORDER BY posts.post_pk DESC
         """
         params = (user["user_pk"], target_user_pk)
+
+    #Admin only
+    """SELECT 
+        users.*,
+        posts.*,
+        COUNT(l_all.user_fk) AS like_count,
+        SUM(l_all.user_fk = %s) AS liked
+    FROM users
+    JOIN posts 
+        ON users.user_pk = posts.post_user_fk
+    LEFT JOIN likes l_all
+        ON posts.post_pk = l_all.post_fk
+    WHERE posts.post_is_blocked = 1
+    GROUP BY posts.post_pk
+    ORDER BY posts.post_pk DESC
+    """
 
     # ----------------------------
     # Execute selected query
