@@ -5,8 +5,11 @@
         <div class="profile-banner"></div>
 
         <div class="profile-avatar-wrapper">
-            <img src="{{ url_for('static', filename='images/' ~ (user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
-                alt="Profile picture" class="profile-avatar" />
+            <img
+                src="{{ url_for('static', filename='images/' ~ (user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
+                alt="Profile picture"
+                class="profile-avatar"
+            />
         </div>
 
         <div class="profile-header-main">
@@ -17,72 +20,101 @@
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
-
+                {% if is_me %}
                 <details class="profile-edit">
                     <summary class="btn btn-edit-profile">
                         <i class="fa fa-pencil"></i>
                         <span>Edit profile</span>
                     </summary>
                     <div class="profile-edit-form">
-
-                        <form action="{{ url_for('api_update_profile') }}" method="POST" enctype="multipart/form-data"
-                            mix-post>
-
-
-                            <button type="button" class="close-edit"><i class="fa-solid fa-x"></i></button>
+                        <form
+                            action="{{ url_for('api_update_profile') }}"
+                            method="POST"
+                            enctype="multipart/form-data"
+                            mix-post
+                        >
+                            <button type="button" class="close-edit">
+                                <i class="fa-solid fa-x"></i>
+                            </button>
                             <label class="profile-field">
                                 <span>First name</span>
-                                <input type="text" name="user_first_name" value="{{ user.user_first_name }}" required>
+                                <input
+                                    type="text"
+                                    name="user_first_name"
+                                    value="{{ user.user_first_name }}"
+                                    required
+                                />
                             </label>
 
                             <label class="profile-field">
                                 <span>Username</span>
-                                <input type="text" name="user_username" value="{{ user.user_username }}" required>
+                                <input
+                                    type="text"
+                                    name="user_username"
+                                    value="{{ user.user_username }}"
+                                    required
+                                />
                             </label>
 
                             <label class="profile-field">
                                 <span>Email</span>
-                                <input type="email" name="user_email" value="{{ user.user_email }}" required>
+                                <input
+                                    type="email"
+                                    name="user_email"
+                                    value="{{ user.user_email }}"
+                                    required
+                                />
                             </label>
 
                             <label class="profile-field">
                                 <span>Bio</span>
-                                <textarea name="user_bio" rows="3">{{ user.user_bio or "" }}</textarea>
+                                <textarea name="user_bio" rows="3">
+{{ user.user_bio or "" }}</textarea
+                                >
                             </label>
 
                             <label class="profile-field">
                                 <span>Avatar</span>
-                                <input type="file" name="user_avatar" accept="image/*">
+                                <input
+                                    type="file"
+                                    name="user_avatar"
+                                    accept="image/*"
+                                />
                             </label>
-
-
 
                             <button type="submit" class="btn btn-save-profile">
                                 Save
                             </button>
                         </form>
-                        <form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-post>
-                            <button type="button" class="btn btn-delete-profile" mix-default="Delete profile"
-                                mix-await="Deleting profile ..." onclick="
+                        <form
+                            class="x-dialog__form"
+                            action="{{ url_for('api_delete_profile') }}"
+                            mix-post
+                        >
+                            <button
+                                type="button"
+                                class="btn btn-delete-profile"
+                                mix-default="Delete profile"
+                                mix-await="Deleting profile ..."
+                                onclick="
                                     let value = prompt('Type DELETE to confirm profile deletion:');
                                     if (value === 'DELETE') {
                                         this.closest('form').requestSubmit();
                                     } else {
                                         alert('Profile deletion cancelled');
                                     }
-                                ">
+                                "
+                            >
                                 Delete profile
                             </button>
                         </form>
                     </div>
                 </details>
-
+                {%endif%}
             </div>
 
             {% if user.user_bio %}
-            <p id="profile_bio" class="profile-bio">
-                {{ user.user_bio }}
-            </p>
+            <p id="profile_bio" class="profile-bio">{{ user.user_bio }}</p>
             {% endif %}
 
             <!-- falske tabs, bare så det ser rigtigt flot ud -->
@@ -108,12 +140,8 @@
     </div>
 
     <section id="posts" class="profile-timeline">
-        {% for tweet in tweets: %}
-        {% include "_tweet.html" %}
-        {% else %}
-        <p class="profile-empty-state">
-            You haven't posted anything yet.
-        </p>
+        {% for tweet in tweets: %} {% include "_tweet.html" %} {% else %}
+        <p class="profile-empty-state">You haven't posted anything yet.</p>
         {% endfor %}
     </section>
 </section>
