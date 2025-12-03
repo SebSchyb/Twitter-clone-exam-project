@@ -97,7 +97,8 @@ def login(lan = "english"):
             # User errors😂😂😂
             if ex.args[1] == 400:
                 toast_error = render_template("___toast_error.html", message=ex.args[0])
-                return f"""<browser mix-update="#toast">{ toast_error }</browser>""", 400
+                return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 400
+            
 
             # System or developer error
             toast_error = render_template("___toast_error.html", message="System under maintenance")
@@ -326,7 +327,7 @@ def home():
         ic(user)
         if not user:
             return redirect(url_for("login"))
-        db, cursor = x.db();
+        db, cursor = x.db()
         tweets = grab_tweets(useronly=False)
         
         q = "SELECT * FROM trends ORDER BY RAND() LIMIT 3"
@@ -740,10 +741,15 @@ def api_delete_post(post_pk):
 @app.route("/api-create-post", methods=["POST"])
 def api_create_post():
     try:
-        user = session.get("user", "")   
+        user = session.get("user", "")  
+        ic(user) 
         if not user: return "invalid user"
-                # User must not be blocked
-        if user["user_is_blocked"] == 1:
+
+        db, cursor = x.db()
+        cursor.execute("SELECT * FROM users WHERE user_pk=%s", (user["user_pk"],))
+        current_user = cursor.fetchone()
+        ic(current_user)
+        if current_user["user_is_blocked"] == 1:
             toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
         user_pk = user["user_pk"]   
