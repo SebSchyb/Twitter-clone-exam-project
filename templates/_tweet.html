@@ -1,5 +1,5 @@
 <article class="post tweet" id="tweet-{{tweet.post_pk}}">
-    <a href="/{{tweet.tweet_username}}">
+    <a href="/{{tweet.user_username}}">
         <img src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
             alt="Profile Picture" class="w-8 h-8 rounded-full" />
     </a>
