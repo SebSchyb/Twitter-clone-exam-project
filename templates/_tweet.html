@@ -38,6 +38,7 @@
                     <form
                         mix-delete
                         action="/api-delete-post/{{tweet.post_pk}}"
+                        class="text-a-center"
                     >
                         <button
                             type="submit"
@@ -56,25 +57,14 @@
                     </form>
                     <!-- Only render block if user is admin -->
                     {% if user.user_is_admin == 1 %}
-                    <form
-                        action="/admin-block-post"
-                        mix-patch
-                        data-post="{{tweet.post_pk}}"
+                    <div
+                        id="toggle-post-{{ tweet.post_pk }}"
+                        class="!d-contents"
                     >
-                        <input
-                            type="hidden"
-                            name="block-input"
-                            value="{{tweet.post_pk}}"
-                        />
-                        <button
-                            type="submit"
-                            class="block-btn cursor-pointer"
-                            mix-default="Block"
-                            mix-await="Please Wait..."
-                        >
-                            Block
-                        </button>
-                    </form>
+                        {% include "__admin_toggle_post_button.html" with
+                        context %}
+                    </div>
+
                     {%endif%}
                 </div>
             </details>

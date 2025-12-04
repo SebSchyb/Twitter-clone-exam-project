@@ -930,39 +930,36 @@ def test_admin_route():
     except Exception as ex:
         ic(ex)
 
-##############################
-@app.patch("/admin-block-post")
-def admin_block_post():
+@app.patch("/admin-block-post/<post_pk>")
+def admin_block_post(post_pk):
     try:
-        user = session.get("user", "")
-        if not user:
+        admin = session.get("user", "")
+        if not admin:
             return "No user found"
-        if not user["user_is_admin"] == 1:
+
+        if admin.get("user_is_admin") != 1:
             return "Not allowed for non-admin users.", 400
-        post_pk = request.form.get("block-input", "").strip()
-        ic(post_pk)
+
         db, cursor = x.db()
-        # Grap post and check if deleted
+
+        # Fetch post
         q = "SELECT * FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         post = cursor.fetchone()
+
         if not post:
-            toast_error = render_template("___toast_error.html", message="Post does not exist")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
-        
-        # Check if post is already blocked
-        q = "SELECT * FROM posts WHERE post_pk = %s AND post_is_blocked = 1"
-        cursor.execute(q, (post_pk,))
-        post = cursor.fetchone()
-        if post:
-            toast_error = render_template("___toast_error.html", message="Post is already blocked")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
-        
-        # Update record in db
-        q = "UPDATE posts SET post_is_blocked = 1 WHERE post_pk = %s"
-        cursor.execute(q, (post_pk,))
+            toast = render_template("___toast_error.html", message="Post does not exist")
+            return f"""<browser mix-bottom="#toast">{toast}</browser>"""
+
+        current_state = post["post_is_blocked"]
+        new_state = 1 if current_state == 0 else 0
+
+        # Update
+        q = "UPDATE posts SET post_is_blocked = %s WHERE post_pk = %s"
+        cursor.execute(q, (new_state, post_pk))
         db.commit()
-        # Send email to user
+
+        # Email owner
         q = """
         SELECT users.user_email
         FROM users
@@ -970,20 +967,39 @@ def admin_block_post():
         WHERE posts.post_pk = %s
         """
         cursor.execute(q, (post_pk,))
-        email = cursor.fetchone()
-        user_email = email["user_email"]
-        email_html = f'Your post has been blocked because an admin thought it to be inappropriate'
-        x.send_email(user_email, "Note from admin", email_html)
-        toast_ok = render_template("___toast_ok.html", message="Post is now blocked")
-        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
-        
+        owner = cursor.fetchone()
+
+        if owner:
+            if new_state == 1:
+                email_html = "Your post has been blocked by an administrator."
+                x.send_email(owner["user_email"], "Post Blocked", email_html)
+                toast = render_template("___toast_ok.html", message="Post is now blocked")
+            else:
+                email_html = "Your post has been unblocked by an administrator."
+                x.send_email(owner["user_email"], "Post Unblocked", email_html)
+                toast = render_template("___toast_ok.html", message="Post is now unblocked")
+
+        # Render updated toggle button
+        updated_button = render_template(
+            "__admin_toggle_post_button.html", 
+            tweet={**post, "post_is_blocked": new_state}
+        )
+
+        return f"""
+            <browser mix-bottom="#toast">{toast}</browser>
+            <browser mix-replace="#toggle-post-{post_pk}">{updated_button}</browser>
+            <browser mix-remove="#tweet-{post_pk}"></browser>
+        """
+
     except Exception as ex:
         ic(ex)
-        toast_error = render_template("___toast_error.html", message="System Error")
-        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        toast = render_template("___toast_error.html", message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast}</browser>"""
+
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 
 ##############################
