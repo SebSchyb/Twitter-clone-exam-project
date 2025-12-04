@@ -53,6 +53,14 @@
                         <span class="pointer-e-none">Profile</span>
                     </a>
                 </li>
+                {%if user.user_is_admin == 1 %}
+                <li>
+                    <a href="/admin" mix-get>
+                        <i class="fa-solid fa-toolbox"></i>
+                        <span class="pointer-e-none text-d-underline">Admin</span>
+                    </a>
+                </li>
+                {%endif%}
 
 
                 <li><a href="#"><i class="fa-solid fa-ellipsis"></i><span>More</span></a></li>
@@ -98,7 +106,7 @@
                 p-absolute top-8 left-0 w-full bg-c-white h-50 pa-4
                 border-1 border-c-gray:+50 rounded-sm">
                 </div>
-            </form>
+            </form> 
 
             <div class="border-1 border-c-gray:+50 rounded-md pa-3">
                 <h2 class="text-120 text-c-black text-w-bold">What's happening now</h2>
