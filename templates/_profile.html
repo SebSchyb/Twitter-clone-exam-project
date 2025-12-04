@@ -15,11 +15,20 @@
         <div class="profile-header-main">
             <div class="profile-header-row">
                 <div>
-                    <h1 class="profile-name">
-                        {{ user.user_first_name }} {{ user.user_last_name }}
+                    <h1
+                        class="profile-name {{ '!text-c-red' if user.user_is_blocked == 1 else '' }}"
+                    >
+                        {{ user.user_first_name }} {{ user.user_last_name }} {%
+                        if user.user_is_blocked ==1 %}
+                        <span>|| BLOCKED <i class="fa-solid fa-lock"></i></span>
+                        {%endif%}
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
+                <div id="toggle-user-{{ user.user_pk }}">
+                    {% include "__admin_toggle_user_button.html" with context %}
+                </div>
+                {% if not is_me %} {% include "__follow_button.html"%} {%endif%}
                 {% if is_me %}
                 <details class="profile-edit">
                     <summary class="btn btn-edit-profile">

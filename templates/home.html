@@ -67,7 +67,7 @@
                     <img src="{{ url_for('static', filename='images/'~(user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
                         alt="Profile Picture" />
                     <div>
-                        <div class="name">
+                        <div class="name text-c-black">
                             {{ user.user_first_name }}
                         </div>
                         <div class="handle">

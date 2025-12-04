@@ -397,58 +397,7 @@ def home_comp():
 
         db, cursor = x.db()
 
-        # 1. Get tweets
-        q = """
-        SELECT 
-            users.*,
-            posts.*,
-            COUNT(l_all.user_fk) AS like_count,
-            SUM(l_all.user_fk = %s) AS liked
-        FROM users
-        JOIN posts 
-            ON users.user_pk = posts.post_user_fk
-        LEFT JOIN likes l_all
-            ON posts.post_pk = l_all.post_fk
-        GROUP BY posts.post_pk
-        ORDER BY posts.post_pk DESC
-        LIMIT 5
-        """
-        cursor.execute(q, (user["user_pk"],))
-        tweets = cursor.fetchall()
-        
-        # 2. Get all post_pks
-        post_pks = [t["post_pk"] for t in tweets]
-        
-        if post_pks:  # Only fetch comments if we have posts
-            # 3. Fetch all comments for these posts
-            q = f"""
-            SELECT 
-                comments.*,
-                users.user_username,
-                users.user_first_name,
-                users.user_last_name,
-                users.user_avatar_path
-            FROM comments
-            JOIN users ON users.user_pk = comments.user_fk
-            WHERE comments.post_fk IN ({','.join(['%s'] * len(post_pks))})
-            ORDER BY comments.comment_pk ASC
-            """
-            cursor.execute(q, tuple(post_pks))
-            comments = cursor.fetchall()
-        
-            # 4. Group comments by post_fk
-            comments_by_post = {pk: [] for pk in post_pks}
-            for c in comments:
-                comments_by_post[c["post_fk"]].append(c)
-        
-            # 5. Attach each comment group to its corresponding tweet
-            for t in tweets:
-                t["comments"] = comments_by_post.get(t["post_pk"], [])
-        else:
-            # No posts → no comments
-            for t in tweets:
-                t["comments"] = []
-        
+        tweets = grab_tweets(useronly=False)
         ic("home-comp fired")
         html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
@@ -1018,63 +967,67 @@ def admin_block_post():
 @app.patch("/admin-block-user")
 def admin_block_user():
     try:
-        user = session.get("user", "")
-        if not user:
-            return "No user found"
+        admin = session.get("user", "")
+        if not admin:
+            return "No admin user found"
 
         # Must be admin
-        if user.get("user_is_admin") != 1:
+        if admin.get("user_is_admin") != 1:
             return "Not allowed for non-admin users.", 400
 
-        target_user_pk = request.form.get("block-user-input", "").strip()
-        ic(target_user_pk)
+        user_pk = request.form.get("block-user-input", "").strip()
+        ic(user_pk)
 
         db, cursor = x.db()
 
-        # 1. Does the user exist?
+        # 1. Fetch the user to toggle
         q = "SELECT * FROM users WHERE user_pk = %s"
-        cursor.execute(q, (target_user_pk,))
-        target_user = cursor.fetchone()
+        cursor.execute(q, (user_pk,))
+        user = cursor.fetchone()
 
-        if not target_user:
-            toast_error = render_template("___toast_error.html",
-                                          message="User does not exist")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        if not user:
+            toast = render_template("___toast_error.html", message="User does not exist")
+            return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
-        # 2. Is the user already blocked?
-        if target_user["user_is_blocked"] == 1:
-            toast_error = render_template("___toast_error.html",
-                                          message="User is already blocked")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        is_blocked = user["user_is_blocked"]
 
-        # 3. Block the user
-        q = "UPDATE users SET user_is_blocked = 1 WHERE user_pk = %s"
-        cursor.execute(q, (target_user_pk,))
+        # 2. Toggle
+        new_state = 1 if is_blocked == 0 else 0
+
+        q = "UPDATE users SET user_is_blocked = %s WHERE user_pk = %s"
+        cursor.execute(q, (new_state, user_pk))
         db.commit()
 
-        # 4. Email the user
-        user_email = target_user["user_email"]
-        email_html = (
-            "Your account has been blocked by an administrator due to a "
-            "violation of our community guidelines."
+        # 3. Send email
+        if new_state == 1:
+            email_html = "Your account has been blocked by an administrator."
+            x.send_email(user["user_email"], "Account Blocked", email_html)
+            toast = render_template("___toast_ok.html", message="User is now blocked")
+        else:
+            email_html = "Your account has been unblocked by an administrator."
+            x.send_email(user["user_email"], "Account Unblocked", email_html)
+            toast = render_template("___toast_ok.html", message="User is now unblocked")
+
+        # 4. Render updated button
+        updated_button_html = render_template(
+            "__admin_toggle_user_button.html",
+            user={**user, "user_is_blocked": new_state}
         )
 
-        x.send_email(user_email, "Account Blocked", email_html)
-
-        # 5. Toast
-        toast_ok = render_template("___toast_ok.html",
-                                   message="User is now blocked")
-        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
+        return f"""
+            <browser mix-bottom="#toast">{toast}</browser>
+            <browser mix-replace="#toggle-user-{user_pk}">{updated_button_html}</browser>
+        """
 
     except Exception as ex:
         ic(ex)
-        toast_error = render_template("___toast_error.html",
-                                      message="System Error")
-        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        toast = render_template("___toast_error.html", message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 ##############################
 @app.get("/get-data-from-sheet")
@@ -1211,8 +1164,20 @@ def user_profile(username):
 
         db, cursor = x.db()
 
-        q_user = "SELECT * FROM users WHERE user_username = %s"
-        cursor.execute(q_user, (username,))
+        # q_user = "SELECT * FROM users WHERE user_username = %s"
+        q_user = """SELECT 
+            users.*,
+            EXISTS(
+                SELECT 1 
+                FROM follows 
+                WHERE follows.user_fk = users.user_pk
+                AND follows.follower_fk = %s
+            ) AS followed
+        FROM users
+        WHERE users.user_username = %s
+        LIMIT 1;
+        """
+        cursor.execute(q_user, (session_user["user_pk"], username,))
         user = cursor.fetchone()
         if not user:
             return "error user not found"
