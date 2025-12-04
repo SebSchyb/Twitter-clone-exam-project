@@ -17,7 +17,7 @@
                 </span>
             </a>
             <a href="/{{ tweet.user_username }}" mix-get>
-                <span class="handle name pointer-e-none !text-w-medium"
+                <span class="handle name pointer-e-none !text-w-normal"
                     >@{{ tweet.user_username }}</span
                 >
                 ·
@@ -35,13 +35,16 @@
                     <button data-post="{{tweet.post_pk}}" class="edit-btn">
                         Edit
                     </button>
-                    <button
-                        data-post="{{tweet.post_pk}}"
-                        class="delete delete-btn"
-                        mix-delete="/api-delete-post/{{tweet.post_pk}}"
-                    >
-                        Delete
-                    </button>
+                    <form>
+                        <input type="hidden" name="delete-button" />
+                        <button
+                            data-post="{{tweet.post_pk}}"
+                            class="delete delete-btn"
+                            mix-delete="/api-delete-post/{{tweet.post_pk}}"
+                        >
+                            Delete
+                        </button>
+                    </form>
                     <!-- Only render block if user is admin -->
                     {% if user.user_is_admin == 1 %}
                     <form

@@ -25,7 +25,7 @@ app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = Path(app.root_path) / 'static' / 'images'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif']
-app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # e.g. 2 MB
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # e.g. 2 MB
 
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -171,7 +171,19 @@ def signup(lan = "english"):
             user_hashed_password = generate_password_hash(user_password)
 
             # Connect to the database
-            q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            # q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            q = """INSERT INTO users (
+                user_pk,
+                user_email,
+                user_password,
+                user_username,
+                user_first_name,
+                user_last_name,
+                user_avatar_path,
+                user_verification_key,
+                user_verified_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
             db, cursor = x.db()
             cursor.execute(q, (user_pk, user_email, user_hashed_password, user_username, 
             user_first_name, user_last_name, user_avatar_path, user_verification_key, user_verified_at))
@@ -641,6 +653,7 @@ def api_edit_post(post_pk):
 def api_delete_post(post_pk):
     try:
         user = session.get("user", "")
+        post_pk = request.form.get("delete-form", "")
         if not user:
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
