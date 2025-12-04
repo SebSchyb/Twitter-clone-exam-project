@@ -653,7 +653,11 @@ def api_edit_post(post_pk):
 def api_delete_post(post_pk):
     try:
         user = session.get("user", "")
-        post_pk = request.form.get("delete-form", "")
+        ic(post_pk)
+
+        if not post_pk:
+            return "Missing post ID", 400
+        
         if not user:
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""

@@ -35,12 +35,21 @@
                     <button data-post="{{tweet.post_pk}}" class="edit-btn">
                         Edit
                     </button>
-                    <form>
-                        <input type="hidden" name="delete-button" />
+                    <form
+                        mix-delete
+                        action="/api-delete-post/{{tweet.post_pk}}"
+                    >
                         <button
+                            type="submit"
                             data-post="{{tweet.post_pk}}"
-                            class="delete delete-btn"
-                            mix-delete="/api-delete-post/{{tweet.post_pk}}"
+                            class="delete delete-btn cursor-pointer"
+                            mix-default="Delete"
+                            mix-await="Please wait..."
+                            onclick="
+                                if (!confirm('Confirm action?')) {
+                                    event.preventDefault();
+                                }
+                            "
                         >
                             Delete
                         </button>
