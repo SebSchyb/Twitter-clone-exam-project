@@ -5,19 +5,14 @@
         <div class="profile-banner"></div>
 
         <div class="profile-avatar-wrapper">
-            <img
-                src="{{ url_for('static', filename='images/' ~ (user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
-                alt="Profile picture"
-                class="profile-avatar"
-            />
+            <img src="{{ url_for('static', filename='images/' ~ (user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
+                alt="Profile picture" class="profile-avatar" />
         </div>
 
         <div class="profile-header-main">
             <div class="profile-header-row">
                 <div>
-                    <h1
-                        class="profile-name {{ '!text-c-red' if user.user_is_blocked == 1 else '' }}"
-                    >
+                    <h1 class="profile-name {{ '!text-c-red' if user.user_is_blocked == 1 else '' }}">
                         {{ user.user_first_name }} {{ user.user_last_name }} {%
                         if user.user_is_blocked ==1 %}
                         <span>|| BLOCKED <i class="fa-solid fa-lock"></i></span>
@@ -36,84 +31,52 @@
                         <span>Edit profile</span>
                     </summary>
                     <div class="profile-edit-form">
-                        <form
-                            action="{{ url_for('api_update_profile') }}"
-                            method="POST"
-                            enctype="multipart/form-data"
-                            mix-post
-                        >
+                        <form action="{{ url_for('api_update_profile') }}" method="POST" enctype="multipart/form-data"
+                            mix-post>
                             <button type="button" class="close-edit">
                                 <i class="fa-solid fa-x"></i>
                             </button>
                             <label class="profile-field">
                                 <span>First name</span>
-                                <input
-                                    type="text"
-                                    name="user_first_name"
-                                    value="{{ user.user_first_name }}"
-                                    required
-                                />
+                                <input type="text" name="user_first_name" value="{{ user.user_first_name }}" required />
                             </label>
 
                             <label class="profile-field">
                                 <span>Username</span>
-                                <input
-                                    type="text"
-                                    name="user_username"
-                                    value="{{ user.user_username }}"
-                                    required
-                                />
+                                <input type="text" name="user_username" value="{{ user.user_username }}" required />
                             </label>
 
                             <label class="profile-field">
                                 <span>Email</span>
-                                <input
-                                    type="email"
-                                    name="user_email"
-                                    value="{{ user.user_email }}"
-                                    required
-                                />
+                                <input type="email" name="user_email" value="{{ user.user_email }}" required />
                             </label>
 
                             <label class="profile-field">
                                 <span>Bio</span>
                                 <textarea name="user_bio" rows="3">
-{{ user.user_bio or "" }}</textarea
-                                >
+{{ user.user_bio or "" }}</textarea>
                             </label>
 
                             <label class="profile-field">
                                 <span>Avatar</span>
-                                <input
-                                    type="file"
-                                    name="user_avatar"
-                                    accept="image/*"
-                                />
+                                <input type="file" name="user_avatar" accept="image/*" />
+                                <p>Please upload images under 4 MB in JPG, JPEG, PNG, or GIF format</p>
                             </label>
 
                             <button type="submit" class="btn btn-save-profile">
                                 Save
                             </button>
                         </form>
-                        <form
-                            class="x-dialog__form"
-                            action="{{ url_for('api_delete_profile') }}"
-                            mix-post
-                        >
-                            <button
-                                type="button"
-                                class="btn btn-delete-profile"
-                                mix-default="Delete profile"
-                                mix-await="Deleting profile ..."
-                                onclick="
+                        <form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-post>
+                            <button type="button" class="btn btn-delete-profile" mix-default="Delete profile"
+                                mix-await="Deleting profile ..." onclick="
                                     let value = prompt('Type DELETE to confirm profile deletion:');
                                     if (value === 'DELETE') {
                                         this.closest('form').requestSubmit();
                                     } else {
                                         alert('Profile deletion cancelled');
                                     }
-                                "
-                            >
+                                ">
                                 Delete profile
                             </button>
                         </form>

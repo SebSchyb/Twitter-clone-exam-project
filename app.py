@@ -3,6 +3,7 @@ from flask_session import Session
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
 import gspread
 import requests
 import json
@@ -25,7 +26,7 @@ app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = Path(app.root_path) / 'static' / 'images'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif']
-app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # e.g. 2 MB
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # e.g. 4 MB
 
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -51,7 +52,12 @@ def global_variables():
         dictionary = dictionary,
         x = x
     )
+#########################
 
+# @app.errorhandler(RequestEntityTooLarge)
+# def handle_file_too_large(e):
+#     toast_error = render_template("___toast_error.html", message="File too large. Maximum size is 4 MB")
+#     return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 400
 
 ##############################
 @app.route("/login", methods=["GET", "POST"])
@@ -859,6 +865,14 @@ def api_update_profile():
     
     except Exception as ex:
         ic(ex)
+
+        if isinstance(ex, RequestEntityTooLarge):
+            toast_error = render_template(
+                "___toast_error.html",
+                message="File too large. Maximum size is 4 MB"
+            )
+            return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
+
         if len(ex.args) > 1 and ex.args[1] == 400:
             toast_error = render_template("___toast_error.html", message=ex.args[0])
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
@@ -870,6 +884,7 @@ def api_update_profile():
             toast_error = render_template("___toast_error.html", message="Username already registered")
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
+        # Fallback
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
@@ -878,8 +893,7 @@ def api_update_profile():
         if "db" in locals(): db.close()
 
 
-
-
+###########
 ##############################
 @app.post("/api-search")
 def api_search():
