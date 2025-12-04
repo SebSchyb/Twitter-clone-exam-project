@@ -220,7 +220,7 @@ def signup(lan = "english"):
 
 #helper function for grabbing tweets
 ##############################
-def grab_tweets(useronly=False, target_user_pk=None):
+def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
     user = session.get("user", "")
     if not user:
         return "error"
@@ -230,8 +230,27 @@ def grab_tweets(useronly=False, target_user_pk=None):
     # ----------------------------
     # Choose SQL query based on mode
     # ----------------------------
-    if not useronly:
-        # GLOBAL FEED
+    if blockedonly:
+        # Admin-only: get ONLY blocked posts
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
+        WHERE posts.post_is_blocked = 1
+        GROUP BY posts.post_pk
+        ORDER BY posts.post_pk DESC
+        """
+        params = (user["user_pk"],)
+
+    elif not useronly:
+        # GLOBAL feed (only unblocked posts)
         q = """
         SELECT 
             users.*,
@@ -249,10 +268,9 @@ def grab_tweets(useronly=False, target_user_pk=None):
         """
         params = (user["user_pk"],)
 
-    else:
-        # USER-ONLY FEED — MUST have a target user
+    elif useronly:
         if not target_user_pk:
-            target_user_pk = user["user_pk"]   # default to the logged in user
+            target_user_pk = user["user_pk"]
 
         q = """
         SELECT 
@@ -271,25 +289,13 @@ def grab_tweets(useronly=False, target_user_pk=None):
         """
         params = (user["user_pk"], target_user_pk)
 
-    #Admin only
-    """SELECT 
-        users.*,
-        posts.*,
-        COUNT(l_all.user_fk) AS like_count,
-        SUM(l_all.user_fk = %s) AS liked
-    FROM users
-    JOIN posts 
-        ON users.user_pk = posts.post_user_fk
-    LEFT JOIN likes l_all
-        ON posts.post_pk = l_all.post_fk
-    WHERE posts.post_is_blocked = 1
-    GROUP BY posts.post_pk
-    ORDER BY posts.post_pk DESC
-    """
+
+
 
     # ----------------------------
     # Execute selected query
     # ----------------------------
+    ic(q)
     cursor.execute(q, params)
     tweets = cursor.fetchall()
 
@@ -1122,6 +1128,7 @@ def get_data_from_sheet():
     finally:
         pass
 
+##############################
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
 
@@ -1160,8 +1167,8 @@ def forgot_password():
         finally:
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
-##########
 
+##############################
 @app.route("/reset-password/<reset_key>", methods=["GET", "POST"])
 def reset_password(reset_key):
 
@@ -1193,9 +1200,9 @@ def reset_password(reset_key):
         finally:
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
-##########
 
 
+##############################
 @app.get("/<username>")
 def user_profile(username):
     try:
@@ -1239,4 +1246,26 @@ def user_profile(username):
         if "db" in locals(): db.close()
 
 
-###
+##############################
+@app.get("/admin")
+def get_admin():
+    try:
+        user = session.get("user", "")
+
+        if user["user_is_admin"] == 0:
+            return redirect(url_for("home"))
+        db, cursor = x.db();
+        #grab blocked tweets
+        tweets = grab_tweets(blockedonly=True)
+        #grab blocked users
+        q = "SELECT * FROM users WHERE user_is_blocked = 1"
+        cursor.execute(q,)
+        blocked_users = cursor.fetchall()
+        ic(blocked_users)
+        html = render_template("_admin.html", tweets=tweets, user=user, blocked_users=blocked_users)
+        return f"""<browser mix-update="main">{html}</browser> """
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        pass

@@ -8,6 +8,11 @@
         class="block-btn cursor-pointer rounded px-3 py-1 ts-200"
         mix-default="Block"
         mix-await="Please wait..."
+        onclick="
+            if (confirm('Confirm action?')) {
+                this.closest('form').requestSubmit();
+            }
+        "
     >
         {% if tweet.post_is_blocked == 0 %} Block {% else %} Unblock {% endif %}
     </button>
