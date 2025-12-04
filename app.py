@@ -115,6 +115,8 @@ def login(lan = "english"):
             if "db" in locals(): db.close()
 
 @app.post("/api_delete_profile")
+
+
 def api_delete_profile():
     try:
         user = session.get("user", "")
@@ -1220,4 +1222,19 @@ def user_profile(username):
         if "db" in locals(): db.close()
 
 
-###
+#############
+
+@app.get("/grok")
+def get_grok():
+    try:
+        user = session.get("user", "")
+        if not user:
+            return "error"
+
+        html = render_template("_grok.html", user=user)
+        return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        pass
