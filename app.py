@@ -16,6 +16,8 @@ import io
 import csv
 from pathlib import Path
 from flask import current_app
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
 
 
 
@@ -1134,7 +1136,8 @@ def get_data_from_sheet():
         # ic(data)
 
         # Save data to the file
-        with open("dictionary.json", 'w', encoding='utf-8') as f:
+        dict_path = BASE_DIR / "dictionary.json"
+        with dict_path.open("r", encoding="utf-8") as f:
             f.write(json_data)
 
         return "ok"
