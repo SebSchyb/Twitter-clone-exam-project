@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
-import gspread
+
 import requests
 import json
 import time
@@ -17,7 +17,7 @@ import csv
 from pathlib import Path
 from flask import current_app
 
-from oauth2client.service_account import ServiceAccountCredentials
+
 
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)

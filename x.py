@@ -9,7 +9,9 @@ from email.mime.text import MIMEText
 from functools import wraps
 
 import json
-
+import os
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
 
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
@@ -24,7 +26,8 @@ google_spread_sheet_key = "1gr9svNQb-0f7fPwbEU7_QR3FJw5PgnuE_fjuoIwr22k"
 default_language = "english"
 
 def lans(key):
-    with open("dictionary.json", 'r', encoding='utf-8') as file:
+    dict_path = BASE_DIR / "dictionary.json"
+    with dict_path.open("r", encoding="utf-8") as file:
         data = json.load(file)
     return data[key][default_language]
 
