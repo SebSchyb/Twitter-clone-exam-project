@@ -48,17 +48,35 @@ def lans(key):
 # )
 
 ##############################
+import mysql.connector
+import os
+
 def db():
     try:
-        db = mysql.connector.connect(
-            host = "mariadb",
-            user = "root",  
-            password = "password",
-            database = "x"
-        )
+        # Check if we are running on PythonAnywhere
+        if "PYTHONANYWHERE_DOMAIN" in os.environ:
+            # PROD SETTINGS (PythonAnywhere)
+            config = {
+                "host": "smolly.mysql.eu.pythonanywhere-services.com",
+                "user": "smolly",
+                "password": "password",
+                "database": "smolly$x"
+            }
+        else:
+            # DEV SETTINGS (Localhost / Docker)
+            config = {
+                "host": "mariadb",
+                "user": "root",
+                "password": "password",
+                "database": "x"
+            }
+
+        # Unpack the config dictionary
+        db = mysql.connector.connect(**config)
 
         cursor = db.cursor(dictionary=True)
         return db, cursor
+
     except Exception as e:
         print(e, flush=True)
         raise Exception("Twitter exception - Database under maintenance", 500)
