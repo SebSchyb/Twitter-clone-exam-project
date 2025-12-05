@@ -16,13 +16,19 @@ import io
 import csv
 from pathlib import Path
 from flask import current_app
-from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent
 
 
 
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
+#Disable IC if in production
+if "PYTHONANYWHERE_DOMAIN" in os.environ:
+    ic.disable()
+    domain = "https://smolly.eu.pythonanywhere.com"
+else: 
+    domain = "http://127.0.0.1"
 
 app = Flask(__name__)
 
@@ -200,7 +206,7 @@ def signup(lan = "english"):
             db.commit()
 
             # send verification email
-            email_verify_account = render_template("_email_verify_account.html", user_verification_key=user_verification_key)
+            email_verify_account = render_template("_email_verify_account.html", user_verification_key=user_verification_key, domain=domain)
             ic(email_verify_account)
             x.send_email(user_email, "Verify your account", email_verify_account)
 
@@ -1170,7 +1176,7 @@ def forgot_password():
                            (reset_key, user["user_pk"]))
             db.commit()
 
-            reset_url = f"http://127.0.0.1/reset-password/{reset_key}"
+            reset_url = f"{domain}/reset-password/{reset_key}"
             email_html = f'To reset your password, click here: <a href="{reset_url}">Reset password</a>'
             x.send_email(user_email, "Reset your password", email_html)
 
