@@ -31,25 +31,10 @@ def lans(key):
         data = json.load(file)
     return data[key][default_language]
 
-# external db connection
-# external_db = mysql.connector.connect(
-#     host = "hv74b5.h.filess.io",
-#     user = "twitterclone_scientist",  
-#     password = "c4359945c59082f39adfb9ada1634b0f2dcb45f8",
-#     database = "twitterclone_scientist"
-# )
-
-# internal db connection
-# internal_db = mysql.connector.connect(
-#     host = "mariadb",
-#     user = "root",  
-#     password = "password",
-#     database = "x"
-# )
-
+if "PYTHONANYWHERE_DOMAIN" in os.environ:
+    ic.disable()
 ##############################
-import mysql.connector
-import os
+
 
 def db():
     try:
@@ -59,7 +44,7 @@ def db():
             config = {
                 "host": "smolly.mysql.eu.pythonanywhere-services.com",
                 "user": "smolly",
-                "password": "password",
+                "password": "pyawpassword",
                 "database": "smolly$x"
             }
         else:
