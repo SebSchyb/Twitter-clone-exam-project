@@ -109,76 +109,76 @@ document.addEventListener("click", async function (event) {
 });
 
 //  ##############################
-// Handles edits/deletes
-document.addEventListener("click", async function (event) {
-    //
-    // DELETE POST
-    //
-    const del = event.target.closest(".delete-btn");
-    if (del) {
-        event.preventDefault();
+// // Handles edits/deletes
+// document.addEventListener("click", async function (event) {
+//     //
+//     // DELETE POST
+//     //
+//     // const del = event.target.closest(".delete-btn");
+//     // if (del) {
+//     //     event.preventDefault();
 
-        const postPk = del.dataset.post;
+//     //     const postPk = del.dataset.post;
 
-        // Simple confirmation popup
-        if (!confirm("Are you sure you want to delete your post?")) return;
+//     //     // Simple confirmation popup
+//     //     if (!confirm("Are you sure you want to delete your post?")) return;
 
-        // Send DELETE request
-        const resp = await fetch(`/api-delete-post/${postPk}`, {
-            method: "DELETE",
-        });
-        const data = await resp.text();
-        console.log(data);
+//     //     // Send DELETE request
+//     //     const resp = await fetch(`/api-delete-post/${postPk}`, {
+//     //         method: "DELETE",
+//     //     });
+//     //     const data = await resp.text();
+//     //     console.log(data);
 
-        // const respGet = await fetch(`/home-comp`, {
-        //     method: "GET",
-        // });
-        // console.log(await respGet.text());
-        // // Read the HTML (mixhtml instructions)
-        // const html = await resp.text();
+//         // const respGet = await fetch(`/home-comp`, {
+//         //     method: "GET",
+//         // });
+//         // console.log(await respGet.text());
+//         // // Read the HTML (mixhtml instructions)
+//         // const html = await resp.text();
 
-        // // Inject into DOM so mixhtml reacts to <browser> tags
-        // const temp = document.createElement("div");
-        // temp.innerHTML = html;
-        // document.body.appendChild(temp);
+//         // // Inject into DOM so mixhtml reacts to <browser> tags
+//         // const temp = document.createElement("div");
+//         // temp.innerHTML = html;
+//         // document.body.appendChild(temp);
 
-        // // mixhtml processes the <browser> elements immediately
-        // temp.remove();
+//         // // mixhtml processes the <browser> elements immediately
+//         // temp.remove();
 
-        return;
-    }
+//         return;
+//     }
 
-    //
-    // EDIT POST
-    //
-    // const edit = event.target.closest(".edit-btn");
-    // if (edit) {
-    //     event.preventDefault();
+//     //
+//     // EDIT POST
+//     //
+//     // const edit = event.target.closest(".edit-btn");
+//     // if (edit) {
+//     //     event.preventDefault();
 
-    //     const postPk = edit.dataset.post;
-    //     const textEl = document.querySelector(`#text-${postPk}`);
-    //     const oldText = textEl.textContent.trim();
+//     //     const postPk = edit.dataset.post;
+//     //     const textEl = document.querySelector(`#text-${postPk}`);
+//     //     const oldText = textEl.textContent.trim();
 
-    //     // Ask user for updated text
-    //     const newText = prompt("Edit your post:", oldText);
-    //     if (newText === null) return; // User cancelled
-    //     if (!newText.trim()) return; // Empty input not allowed
+//     //     // Ask user for updated text
+//     //     const newText = prompt("Edit your post:", oldText);
+//     //     if (newText === null) return; // User cancelled
+//     //     if (!newText.trim()) return; // Empty input not allowed
 
-    //     // Send PATCH with JSON
-    //     const resp = await fetch(`/api-edit-post/${postPk}`, {
-    //         method: "PATCH",
-    //         headers: { "Content-Type": "application/json" },
-    //         body: JSON.stringify({ message: newText }),
-    //     });
+//     //     // Send PATCH with JSON
+//     //     const resp = await fetch(`/api-edit-post/${postPk}`, {
+//     //         method: "PATCH",
+//     //         headers: { "Content-Type": "application/json" },
+//     //         body: JSON.stringify({ message: newText }),
+//     //     });
 
-    //     // const respGet = await fetch(`/home-comp`, {
-    //     //     method: "GET",
-    //     // });
-    //     // console.log(await respGet.text());
+//     //     // const respGet = await fetch(`/home-comp`, {
+//     //     //     method: "GET",
+//     //     // });
+//     //     // console.log(await respGet.text());
 
-    //     return;
-    // }
-});
+//     //     return;
+//     // }
+// });
 //Handle follow/unfollow
 // ##############################
 document.addEventListener("click", async function (event) {

@@ -1,5 +1,5 @@
 <article
-    class="post tweet {{ 'blocked' if tweet.post_is_blocked else '' }}"
+    class="post tweet {{ 'blocked mb-2' if tweet.post_is_blocked else '' }}"
     id="tweet-{{tweet.post_pk}}"
 >
     <a href="/{{tweet.user_username}}" mix-get>
@@ -17,7 +17,7 @@
                 </span>
             </a>
             <a href="/{{ tweet.user_username }}" mix-get>
-                <span class="handle name pointer-e-none !text-w-medium"
+                <span class="handle name pointer-e-none !text-w-normal"
                     >@{{ tweet.user_username }}</span
                 >
                 ·
@@ -35,34 +35,36 @@
                     <button data-post="{{tweet.post_pk}}" class="edit-btn">
                         Edit
                     </button>
-                    <button
-                        data-post="{{tweet.post_pk}}"
-                        class="delete delete-btn"
-                        mix-delete="/api-delete-post/{{tweet.post_pk}}"
-                    >
-                        Delete
-                    </button>
-                    <!-- Only render block if user is admin -->
-                    {% if user.user_is_admin == 1 %}
                     <form
-                        action="/admin-block-post"
-                        mix-patch
-                        data-post="{{tweet.post_pk}}"
+                        mix-delete
+                        action="/api-delete-post/{{tweet.post_pk}}"
+                        class="text-a-center"
                     >
-                        <input
-                            type="hidden"
-                            name="block-input"
-                            value="{{tweet.post_pk}}"
-                        />
                         <button
                             type="submit"
-                            class="block-btn cursor-pointer"
-                            mix-default="Block"
-                            mix-await="Please Wait..."
+                            data-post="{{tweet.post_pk}}"
+                            class="delete delete-btn cursor-pointer"
+                            mix-default="Delete"
+                            mix-await="Please wait..."
+                            onclick="
+                                if (!confirm('Confirm action?')) {
+                                    event.preventDefault();
+                                }
+                            "
                         >
-                            Block
+                            Delete
                         </button>
                     </form>
+                    <!-- Only render block if user is admin -->
+                    {% if user.user_is_admin == 1 %}
+                    <div
+                        id="toggle-post-{{ tweet.post_pk }}"
+                        class="!d-contents"
+                    >
+                        {% include "__admin_toggle_post_button.html" with
+                        context %}
+                    </div>
+
                     {%endif%}
                 </div>
             </details>
@@ -128,7 +130,7 @@
     </div>
 </article>
 <form
-    class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md"
+    class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md {{'d-none' if tweet.post_is_blocked else ' '}}"
     mix-post="/api-create-comment/{{tweet.post_pk}}"
 >
     <img
@@ -151,7 +153,7 @@
     </button>
 </form>
 <div
-    class="comments pa-2 border-b-4 border-c-[#e6e6e6]"
+    class="comments pa-2 border-b-4 border-c-[#e6e6e6] {{'d-none' if tweet.post_is_blocked else ' '}}"
     id="comments-{{tweet.post_pk}}"
 >
     {% for c in tweet.comments %} {% set comment = c %} {% include

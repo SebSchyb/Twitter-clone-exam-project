@@ -1294,5 +1294,5 @@ details.profile-edit .close-edit:hover {
     font-size: 22px;
 }
 .blocked {
-    outline: 1px solid red;
+    background: rgba(255, 0, 0, 0.124);
 }

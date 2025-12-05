@@ -179,7 +179,19 @@ def signup(lan = "english"):
             user_hashed_password = generate_password_hash(user_password)
 
             # Connect to the database
-            q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            # q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            q = """INSERT INTO users (
+                user_pk,
+                user_email,
+                user_password,
+                user_username,
+                user_first_name,
+                user_last_name,
+                user_avatar_path,
+                user_verification_key,
+                user_verified_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
             db, cursor = x.db()
             cursor.execute(q, (user_pk, user_email, user_hashed_password, user_username, 
             user_first_name, user_last_name, user_avatar_path, user_verification_key, user_verified_at))
@@ -216,7 +228,7 @@ def signup(lan = "english"):
 
 #helper function for grabbing tweets
 ##############################
-def grab_tweets(useronly=False, target_user_pk=None):
+def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
     user = session.get("user", "")
     if not user:
         return "error"
@@ -226,8 +238,27 @@ def grab_tweets(useronly=False, target_user_pk=None):
     # ----------------------------
     # Choose SQL query based on mode
     # ----------------------------
-    if not useronly:
-        # GLOBAL FEED
+    if blockedonly:
+        # Admin-only: get ONLY blocked posts
+        q = """
+        SELECT 
+            users.*,
+            posts.*,
+            COUNT(l_all.user_fk) AS like_count,
+            SUM(l_all.user_fk = %s) AS liked
+        FROM users
+        JOIN posts 
+            ON users.user_pk = posts.post_user_fk
+        LEFT JOIN likes l_all
+            ON posts.post_pk = l_all.post_fk
+        WHERE posts.post_is_blocked = 1
+        GROUP BY posts.post_pk
+        ORDER BY posts.post_pk DESC
+        """
+        params = (user["user_pk"],)
+
+    elif not useronly:
+        # GLOBAL feed (only unblocked posts)
         q = """
         SELECT 
             users.*,
@@ -245,10 +276,9 @@ def grab_tweets(useronly=False, target_user_pk=None):
         """
         params = (user["user_pk"],)
 
-    else:
-        # USER-ONLY FEED — MUST have a target user
+    elif useronly:
         if not target_user_pk:
-            target_user_pk = user["user_pk"]   # default to the logged in user
+            target_user_pk = user["user_pk"]
 
         q = """
         SELECT 
@@ -267,25 +297,13 @@ def grab_tweets(useronly=False, target_user_pk=None):
         """
         params = (user["user_pk"], target_user_pk)
 
-    #Admin only
-    """SELECT 
-        users.*,
-        posts.*,
-        COUNT(l_all.user_fk) AS like_count,
-        SUM(l_all.user_fk = %s) AS liked
-    FROM users
-    JOIN posts 
-        ON users.user_pk = posts.post_user_fk
-    LEFT JOIN likes l_all
-        ON posts.post_pk = l_all.post_fk
-    WHERE posts.post_is_blocked = 1
-    GROUP BY posts.post_pk
-    ORDER BY posts.post_pk DESC
-    """
+
+
 
     # ----------------------------
     # Execute selected query
     # ----------------------------
+    ic(q)
     cursor.execute(q, params)
     tweets = cursor.fetchall()
 
@@ -649,6 +667,11 @@ def api_edit_post(post_pk):
 def api_delete_post(post_pk):
     try:
         user = session.get("user", "")
+        ic(post_pk)
+
+        if not post_pk:
+            return "Missing post ID", 400
+        
         if not user:
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
@@ -929,39 +952,36 @@ def test_admin_route():
     except Exception as ex:
         ic(ex)
 
-##############################
-@app.patch("/admin-block-post")
-def admin_block_post():
+@app.patch("/admin-block-post/<post_pk>")
+def admin_block_post(post_pk):
     try:
-        user = session.get("user", "")
-        if not user:
+        admin = session.get("user", "")
+        if not admin:
             return "No user found"
-        if not user["user_is_admin"] == 1:
+
+        if admin.get("user_is_admin") != 1:
             return "Not allowed for non-admin users.", 400
-        post_pk = request.form.get("block-input", "").strip()
-        ic(post_pk)
+
         db, cursor = x.db()
-        # Grap post and check if deleted
+
+        # Fetch post
         q = "SELECT * FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         post = cursor.fetchone()
+
         if not post:
-            toast_error = render_template("___toast_error.html", message="Post does not exist")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
-        
-        # Check if post is already blocked
-        q = "SELECT * FROM posts WHERE post_pk = %s AND post_is_blocked = 1"
-        cursor.execute(q, (post_pk,))
-        post = cursor.fetchone()
-        if post:
-            toast_error = render_template("___toast_error.html", message="Post is already blocked")
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
-        
-        # Update record in db
-        q = "UPDATE posts SET post_is_blocked = 1 WHERE post_pk = %s"
-        cursor.execute(q, (post_pk,))
+            toast = render_template("___toast_error.html", message="Post does not exist")
+            return f"""<browser mix-bottom="#toast">{toast}</browser>"""
+
+        current_state = post["post_is_blocked"]
+        new_state = 1 if current_state == 0 else 0
+
+        # Update
+        q = "UPDATE posts SET post_is_blocked = %s WHERE post_pk = %s"
+        cursor.execute(q, (new_state, post_pk))
         db.commit()
-        # Send email to user
+
+        # Email owner
         q = """
         SELECT users.user_email
         FROM users
@@ -969,20 +989,39 @@ def admin_block_post():
         WHERE posts.post_pk = %s
         """
         cursor.execute(q, (post_pk,))
-        email = cursor.fetchone()
-        user_email = email["user_email"]
-        email_html = f'Your post has been blocked because an admin thought it to be inappropriate'
-        x.send_email(user_email, "Note from admin", email_html)
-        toast_ok = render_template("___toast_ok.html", message="Post is now blocked")
-        return f"""<browser mix-bottom="#toast">{toast_ok}</browser>"""
-        
+        owner = cursor.fetchone()
+
+        if owner:
+            if new_state == 1:
+                email_html = "Your post has been blocked by an administrator."
+                x.send_email(owner["user_email"], "Post Blocked", email_html)
+                toast = render_template("___toast_ok.html", message="Post is now blocked")
+            else:
+                email_html = "Your post has been unblocked by an administrator."
+                x.send_email(owner["user_email"], "Post Unblocked", email_html)
+                toast = render_template("___toast_ok.html", message="Post is now unblocked")
+
+        # Render updated toggle button
+        updated_button = render_template(
+            "__admin_toggle_post_button.html", 
+            tweet={**post, "post_is_blocked": new_state}
+        )
+
+        return f"""
+            <browser mix-bottom="#toast">{toast}</browser>
+            <browser mix-replace="#toggle-post-{post_pk}">{updated_button}</browser>
+            <browser mix-remove="#tweet-{post_pk}"></browser>
+        """
+
     except Exception as ex:
         ic(ex)
-        toast_error = render_template("___toast_error.html", message="System Error")
-        return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        toast = render_template("___toast_error.html", message="System Error")
+        return f"""<browser mix-bottom="#toast">{toast}</browser>"""
+
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
+
 
 
 ##############################
@@ -1105,6 +1144,7 @@ def get_data_from_sheet():
     finally:
         pass
 
+##############################
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
 
@@ -1143,8 +1183,8 @@ def forgot_password():
         finally:
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
-##########
 
+##############################
 @app.route("/reset-password/<reset_key>", methods=["GET", "POST"])
 def reset_password(reset_key):
 
@@ -1176,9 +1216,9 @@ def reset_password(reset_key):
         finally:
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
-##########
 
 
+##############################
 @app.get("/<username>")
 def user_profile(username):
     try:
@@ -1222,8 +1262,31 @@ def user_profile(username):
         if "db" in locals(): db.close()
 
 
-#############
+##############################
+@app.get("/admin")
+def get_admin():
+    try:
+        user = session.get("user", "")
 
+        if user["user_is_admin"] == 0:
+            return redirect(url_for("home"))
+        db, cursor = x.db();
+        #grab blocked tweets
+        tweets = grab_tweets(blockedonly=True)
+        #grab blocked users
+        q = "SELECT * FROM users WHERE user_is_blocked = 1"
+        cursor.execute(q,)
+        blocked_users = cursor.fetchall()
+        ic(blocked_users)
+        html = render_template("_admin.html", tweets=tweets, user=user, blocked_users=blocked_users)
+        return f"""<browser mix-update="main">{html}</browser> """
+    except Exception as ex:
+        ic(ex)
+        return "error"
+    finally:
+        pass
+
+##############################
 @app.get("/grok")
 def get_grok():
     try:
