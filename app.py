@@ -17,8 +17,6 @@ import csv
 from pathlib import Path
 from flask import current_app
 
-
-
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
 #Disable IC if in production
