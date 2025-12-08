@@ -1,7 +1,7 @@
 <article class="post tweet {{ 'blocked mb-2' if tweet.post_is_blocked else '' }}" id="tweet-{{tweet.post_pk}}">
     <a href="/{{tweet.user_username}}" mix-get>
         <img src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
-            alt="Profile Picture" class="w-8 h-8 rounded-full name pointer-e-none" />
+            alt="{{ x.lans('profile_picture') }}" class="w-8 h-8 rounded-full name pointer-e-none" />
     </a>
     <div class="post-content">
         <div class="post-header">
@@ -14,7 +14,7 @@
                 <span class="handle name pointer-e-none !text-w-normal">@{{ tweet.user_username }}</span>
                 ·
             </a>
-            <span class="time">1d</span>
+            <span class="time">{{ x.lans("time_1d") }}</span>
 
             {% if tweet.post_user_fk == user.user_pk or user.user_is_admin %}
             <details class="menu">
@@ -48,7 +48,7 @@
                 <div class="modal-content">
                     <span id="closeEditModal-{{tweet.post_pk}}" class="close">&times;</span>
 
-                    <h2>Edit Post</h2>
+                    <h2>{{ x.lans("edit_post_title") }}</h2>
                     <form id="editForm-{{tweet.post_pk}}" action="/api-edit-post/{{tweet.post_pk}}" mix-patch>
                         <textarea class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
                             id="editText-{{tweet.post_pk}}" rows="5" name="message">{{ tweet.post_message }}
@@ -56,7 +56,7 @@
 
                         <button class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
                             type="submit">
-                            Update Post
+                            {{ x.lans("update_post") }}
                         </button>
                     </form>
                 </div>
@@ -68,13 +68,15 @@
             {{ tweet.post_message }}
         </p>
         {% if tweet.post_image_path: %}
-        <img src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}" alt="Post image" class="w-80" />
+        <img src="{{ url_for('static', filename='images/' ~ tweet.post_image_path) }}"
+            alt="{{ x.lans('post_image_alt') }}" class="w-80" />
         {% endif %}
 
         <div class="post-actions">
-            <span class="action"><i class="fa-regular fa-comment"></i> {% if
-                tweet.comments|length > 0 %} {{ tweet.comments|length }} {%
-                endif %}</span>
+            <span class="action">
+                <i class="fa-regular fa-comment"></i>
+                {% if tweet.comments|length > 0 %} {{ tweet.comments|length }} {% endif %}
+            </span>
             <span class="action"><i class="fa-solid fa-retweet"></i> 5</span>
             {% include "___like_button.html" %}
             <span class="action"><i class="fa-solid fa-chart-simple"></i> 230</span>
@@ -87,16 +89,19 @@
     class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md {{'d-none' if tweet.post_is_blocked else ' '}}"
     mix-post="/api-create-comment/{{tweet.post_pk}}">
     <img src="{{ url_for('static', filename='images/'~(user.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
-        alt="Profile Picture" class="w-8 h-8 rounded-full" />
-    <textarea name="comment" id="" class="w-full pa-2" placeholder="Post your reply" rows="1"></textarea>
+        alt="{{ x.lans('profile_picture') }}" class="w-8 h-8 rounded-full" />
+    <textarea name="comment" id="" class="w-full pa-2" placeholder="{{ x.lans('post_your_reply') }}"
+        rows="1"></textarea>
     <button
         class="w-auto m-auto bg-c-transparent text-c-black[40] border-1 border-s-solid border-c-black[40] py-2 px-6 rounded-xl cursor-pointer"
         type="submit">
-        Reply
+        {{ x.lans("reply") }}
     </button>
 </form>
 <div class="comments pa-2 border-b-4 border-c-[#e6e6e6] {{'d-none' if tweet.post_is_blocked else ' '}}"
     id="comments-{{tweet.post_pk}}">
-    {% for c in tweet.comments %} {% set comment = c %} {% include
-    "__comment.html" %} {% endfor %}
+    {% for c in tweet.comments %}
+    {% set comment = c %}
+    {% include "__comment.html" %}
+    {% endfor %}
 </div>

@@ -390,7 +390,7 @@
         "spanish": "Ir al inicio de sesión"
     },
     "profile_picture": {
-        "english": "Profile picture",
+        "english": "Profile Picture",
         "danish": "Profilbillede",
         "spanish": "Foto de perfil"
     },
@@ -558,5 +558,10 @@
         "english": "No blocked users",
         "danish": "Ingen blokerede brugere",
         "spanish": "No hay usuarios bloqueados"
+    },
+    "time_1d": {
+        "english": "1d",
+        "danish": "1d",
+        "spanish": "1d"
     }
 }
