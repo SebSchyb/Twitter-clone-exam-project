@@ -10,14 +10,15 @@
         </g>
       </svg>
     </div>
-    <h2 id="signupTitle">Create your account</h2>
+    <h2 id="signupTitle">{{ x.lans("create_your_account") }}</h2>
     <form class="x-dialog__form" action="bridge-signup" method="POST" autocomplete="off">
       <input name="user_full_name" type="text" placeholder="Name" required>
       <input name="user_username" type="text" placeholder="Username" required>
       <input name="user_email" type="email" placeholder="Email" required>
       <input name="user_password" type="password" placeholder="Password" required>
-      <button type="submit" class="x-dialog__btn">Sign up</button>
+      <button type="submit" class="x-dialog__btn">{{ x.lans("signup") }}</button>
     </form>
-    <p class="x-dialog__alt">Already have an account? <a href="#" data-open="loginDialog">Log in</a></p>
+    <p class="x-dialog__alt">{{ x.lans("have_account") }} <a href="#" data-open="loginDialog">{{ x.lans("login") }}</a>
+    </p>
   </div>
 </div>

@@ -11,11 +11,11 @@
   </div>
 
   <div class="x-landing__right">
-    <h1 class="x-landing__title">Happening now</h1>
-    <h2 class="x-landing__subtitle">Join today.</h2>
+    <h1 class="x-landing__title">{{ x.lans("happening_now") }}</h1>
+    <h2 class="x-landing__subtitle">{{ x.lans("join_today") }}</h2>
 
-    <a class="x-landing__btn x-landing__btn--login" href="{{ url_for('signup') }}">Sign up</a>
-    <a class="x-landing__btn x-landing__btn--login" href="{{ url_for('login') }}">Log in</a>
+    <a class="x-landing__btn x-landing__btn--login" href="{{ url_for('signup') }}">{{ x.lans("signup") }}</a>
+    <a class="x-landing__btn x-landing__btn--login" href="{{ url_for('login') }}">{{ x.lans("login") }}</a>
   </div>
 
 

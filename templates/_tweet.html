@@ -24,16 +24,16 @@
 
                 <div>
                     <button data-post="{{tweet.post_pk}}" class="edit-btn">
-                        Edit
+                        {{ x.lans("edit") }}
                     </button>
                     <form mix-delete action="/api-delete-post/{{tweet.post_pk}}" class="text-a-center">
                         <button type="submit" data-post="{{tweet.post_pk}}" class="delete delete-btn cursor-pointer"
-                            mix-default="Delete" mix-await="Please wait..." onclick="
+                            mix-default="Delete" mix-await="{{ x.lans('please_wait') }}" onclick="
                                 if (!confirm('Confirm action?')) {
                                     event.preventDefault();
                                 }
                             ">
-                            Delete
+                            {{ x.lans("delete") }}
                         </button>
                     </form>
                     {% if user.user_is_admin == 1 %}
@@ -48,7 +48,7 @@
                 <div class="modal-content">
                     <span id="closeEditModal-{{tweet.post_pk}}" class="close">&times;</span>
 
-                    <h2>Edit Post</h2>
+                    <h2>{{ x.lans("edit_post_title") }}</h2>
                     <form id="editForm-{{tweet.post_pk}}" action="/api-edit-post/{{tweet.post_pk}}" mix-patch>
                         <textarea class="w-full outline-1 outline-s-solid outline-c-gray:+50 pa-2"
                             id="editText-{{tweet.post_pk}}" rows="5" name="message">{{ tweet.post_message }}
@@ -56,7 +56,7 @@
 
                         <button class="w-auto m-auto mt-2 bg-c-black text-c-white py-2 px-12 rounded-xl cursor-pointer"
                             type="submit">
-                            Update Post
+                            {{ x.lans("update_post") }}
                         </button>
                     </form>
                 </div>
@@ -88,11 +88,12 @@
     mix-post="/api-create-comment/{{tweet.post_pk}}">
     <img src="{{ url_for('static', filename='images/'~(user.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
         alt="Profile Picture" class="w-8 h-8 rounded-full" />
-    <textarea name="comment" id="" class="w-full pa-2" placeholder="Post your reply" rows="1"></textarea>
+    <textarea name="comment" id="" class="w-full pa-2" placeholder="{{ x.lans('post_your_reply') }}"
+        rows="1"></textarea>
     <button
         class="w-auto m-auto bg-c-transparent text-c-black[40] border-1 border-s-solid border-c-black[40] py-2 px-6 rounded-xl cursor-pointer"
         type="submit">
-        Reply
+        {{ x.lans("reply") }}
     </button>
 </form>
 <div class="comments pa-2 border-b-4 border-c-[#e6e6e6] {{'d-none' if tweet.post_is_blocked else ' '}}"

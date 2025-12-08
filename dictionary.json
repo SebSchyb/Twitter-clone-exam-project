@@ -11,17 +11,477 @@
     },
     "email": {
         "english": "Email",
-        "danish": "Email",
-        "spanish": "correo electronico"
+        "danish": "E-mail",
+        "spanish": "Correo electrónico"
     },
     "password": {
         "english": "Password",
         "danish": "Adgangskode",
-        "spanish": "Clave"
+        "spanish": "Contraseña"
     },
     "logout": {
-        "english": "log out",
-        "danish": "logge ud",
-        "spanish": "salir"
+        "english": "Logout",
+        "danish": "Log ud",
+        "spanish": "Cerrar sesión"
+    },
+    "user_is_now_unblocked": {
+        "english": "User is now unblocked",
+        "danish": "Brugeren er nu afblokeret",
+        "spanish": "El usuario ahora está desbloqueado"
+    },
+    "password_reset_email_sent": {
+        "english": "Password reset email sent",
+        "danish": "Email til nulstilling af adgangskode sendt",
+        "spanish": "Correo de restablecimiento de contraseña enviado"
+    },
+    "your_account_is_blocked_please_check_your_email": {
+        "english": "Your account is blocked - please check your email",
+        "danish": "Din konto er blokeret - tjek venligst din email",
+        "spanish": "Tu cuenta está bloqueada; por favor revisa tu correo"
+    },
+    "post_does_not_exist": {
+        "english": "Post does not exist",
+        "danish": "Opslaget findes ikke",
+        "spanish": "La publicación no existe"
+    },
+    "email_already_registered": {
+        "english": "Email already registered",
+        "danish": "Email er allerede registreret",
+        "spanish": "Correo ya registrado"
+    },
+    "invalid_post_length": {
+        "english": "Invalid post length",
+        "danish": "Ugyldig længde på opslag",
+        "spanish": "Longitud de publicación no válida"
+    },
+    "the_world_is_reading_your_post": {
+        "english": "The world is reading your post!",
+        "danish": "Verden læser dit opslag!",
+        "spanish": "¡El mundo está leyendo tu publicación!"
+    },
+    "system_error": {
+        "english": "System Error",
+        "danish": "Systemfejl",
+        "spanish": "Error del sistema"
+    },
+    "file_too_large_maximum_size_is_4_mb": {
+        "english": "File too large. Maximum size is 4 MB",
+        "danish": "Filen er for stor. Maksimal størrelse er 4 MB",
+        "spanish": "Archivo demasiado grande. El tamaño máximo es 4 MB"
+    },
+    "system_under_maintenance": {
+        "english": "System under maintenance",
+        "danish": "Systemet er under vedligeholdelse",
+        "spanish": "Sistema en mantenimiento"
+    },
+    "post_deleted": {
+        "english": "Post deleted",
+        "danish": "Opslag slettet",
+        "spanish": "Publicación eliminada"
+    },
+    "user_does_not_exist": {
+        "english": "User does not exist",
+        "danish": "Brugeren findes ikke",
+        "spanish": "El usuario no existe"
+    },
+    "post_not_found": {
+        "english": "Post not found",
+        "danish": "Opslag ikke fundet",
+        "spanish": "Publicación no encontrada"
+    },
+    "you_cannot_delete_this_post": {
+        "english": "You cannot delete this post",
+        "danish": "Du kan ikke slette dette opslag",
+        "spanish": "No puedes eliminar esta publicación"
+    },
+    "you_must_be_logged_in": {
+        "english": "You must be logged in",
+        "danish": "Du skal være logget ind",
+        "spanish": "Debes iniciar sesión"
+    },
+    "the_world_is_reading_your_comment": {
+        "english": "The world is reading your comment!",
+        "danish": "Verden læser din kommentar!",
+        "spanish": "¡El mundo está leyendo tu comentario!"
+    },
+    "post_updated": {
+        "english": "Post updated",
+        "danish": "Opslag opdateret",
+        "spanish": "Publicación actualizada"
+    },
+    "user_is_now_blocked": {
+        "english": "User is now blocked",
+        "danish": "Brugeren er nu blokeret",
+        "spanish": "El usuario ahora está bloqueado"
+    },
+    "post_is_now_unblocked": {
+        "english": "Post is now unblocked",
+        "danish": "Opslaget er nu afblokeret",
+        "spanish": "La publicación ahora está desbloqueada"
+    },
+    "username_already_registered": {
+        "english": "Username already registered",
+        "danish": "Brugernavn er allerede registreret",
+        "spanish": "Nombre de usuario ya registrado"
+    },
+    "you_can't_do_that": {
+        "english": "you can't do that",
+        "danish": "det kan du ikke",
+        "spanish": "eso no puedes hacerlo"
+    },
+    "post_is_now_blocked": {
+        "english": "Post is now blocked",
+        "danish": "Opslaget er nu blokeret",
+        "spanish": "La publicación ahora está bloqueada"
+    },
+    "you_cannot_edit_this_post": {
+        "english": "You cannot edit this post",
+        "danish": "Du kan ikke redigere dette opslag",
+        "spanish": "No puedes editar esta publicación"
+    },
+    "ok": {
+        "english": "ok",
+        "danish": "ok",
+        "spanish": "ok"
+    },
+    "profile_updated_successfully": {
+        "english": "Profile updated successfully",
+        "danish": "Profil opdateret",
+        "spanish": "Perfil actualizado con éxito"
+    },
+    "title_fresh_news": {
+        "english": "Fresh news",
+        "danish": "Fresh news",
+        "spanish": "Fresh news"
+    },
+    "home": {
+        "english": "Home",
+        "danish": "Hjem",
+        "spanish": "Inicio"
+    },
+    "explore": {
+        "english": "Explore",
+        "danish": "Udforsk",
+        "spanish": "Explorar"
+    },
+    "notifications": {
+        "english": "Notifications",
+        "danish": "Notifikationer",
+        "spanish": "Notificaciones"
+    },
+    "messages": {
+        "english": "Messages",
+        "danish": "Beskeder",
+        "spanish": "Mensajes"
+    },
+    "grok": {
+        "english": "Grok",
+        "danish": "Grok",
+        "spanish": "Grok"
+    },
+    "bookmarks": {
+        "english": "Bookmarks",
+        "danish": "Bogmærker",
+        "spanish": "Marcadores"
+    },
+    "jobs": {
+        "english": "Jobs",
+        "danish": "Jobs",
+        "spanish": "Empleos"
+    },
+    "communities": {
+        "english": "Communities",
+        "danish": "Fællesskaber",
+        "spanish": "Comunidades"
+    },
+    "premium": {
+        "english": "Premium",
+        "danish": "Premium",
+        "spanish": "Premium"
+    },
+    "profile": {
+        "english": "Profile",
+        "danish": "Profil",
+        "spanish": "Perfil"
+    },
+    "admin": {
+        "english": "Admin",
+        "danish": "Admin",
+        "spanish": "Admin"
+    },
+    "more": {
+        "english": "More",
+        "danish": "Mere",
+        "spanish": "Más"
+    },
+    "post": {
+        "english": "Post",
+        "danish": "Opslå",
+        "spanish": "Publicar"
+    },
+    "search_twitter": {
+        "english": "Search Twitter",
+        "danish": "Søg på Twitter",
+        "spanish": "Buscar en Twitter"
+    },
+    "search": {
+        "english": "Search",
+        "danish": "Søg",
+        "spanish": "Buscar"
+    },
+    "whats_happening_now": {
+        "english": "What's happening now",
+        "danish": "Hvad sker der nu",
+        "spanish": "Qué está pasando ahora"
+    },
+    "more_news": {
+        "english": "More news",
+        "danish": "Flere nyheder",
+        "spanish": "Más noticias"
+    },
+    "who_to_follow": {
+        "english": "Who to follow",
+        "danish": "Hvem skal du følge",
+        "spanish": "A quién seguir"
+    },
+    "show_more": {
+        "english": "Show more",
+        "danish": "Vis mere",
+        "spanish": "Mostrar más"
+    },
+    "edit": {
+        "english": "Edit",
+        "danish": "Rediger",
+        "spanish": "Editar"
+    },
+    "delete": {
+        "english": "Delete",
+        "danish": "Slet",
+        "spanish": "Eliminar"
+    },
+    "please_wait": {
+        "english": "Please wait...",
+        "danish": "Vent venligst...",
+        "spanish": "Por favor espere..."
+    },
+    "confirm_action": {
+        "english": "Confirm action?",
+        "danish": "Bekræft handling?",
+        "spanish": "¿Confirmar acción?"
+    },
+    "post_image_alt": {
+        "english": "Post image",
+        "danish": "Opslagsbillede",
+        "spanish": "Imagen de publicación"
+    },
+    "edit_post_title": {
+        "english": "Edit Post",
+        "danish": "Rediger opslag",
+        "spanish": "Editar publicación"
+    },
+    "update_post": {
+        "english": "Update Post",
+        "danish": "Opdater opslag",
+        "spanish": "Actualizar publicación"
+    },
+    "post_your_reply": {
+        "english": "Post your reply",
+        "danish": "Skriv dit svar",
+        "spanish": "Publica tu respuesta"
+    },
+    "reply": {
+        "english": "Reply",
+        "danish": "Svar",
+        "spanish": "Responder"
+    },
+    "profile_picture_alt": {
+        "english": "Profile Picture",
+        "danish": "Profilbillede",
+        "spanish": "Foto de perfil"
+    },
+    "signup_to_x": {
+        "english": "Sign up to X",
+        "danish": "Tilmeld dig X",
+        "spanish": "Regístrate en X"
+    },
+    "username": {
+        "english": "Username",
+        "danish": "Brugernavn",
+        "spanish": "Nombre de usuario"
+    },
+    "first_name": {
+        "english": "First name",
+        "danish": "Fornavn",
+        "spanish": "Nombre"
+    },
+    "characters": {
+        "english": "characters",
+        "danish": "tegn",
+        "spanish": "caracteres"
+    },
+    "signup_button": {
+        "english": "Sign up",
+        "danish": "Tilmeld dig",
+        "spanish": "Registrarse"
+    },
+    "signing_up": {
+        "english": "Signing up...",
+        "danish": "Tilmelding...",
+        "spanish": "Registrándose..."
+    },
+    "have_account": {
+        "english": "Have an account?",
+        "danish": "Har du en konto?",
+        "spanish": "¿Tienes una cuenta?"
+    },
+    "login_to_x": {
+        "english": "Log in to X",
+        "danish": "Log ind på X",
+        "spanish": "Inicia sesión en X"
+    },
+    "logging_in": {
+        "english": "Logging in ...",
+        "danish": "Logger ind ...",
+        "spanish": "Iniciando sesión ..."
+    },
+    "forgot_password": {
+        "english": "Forgot password?",
+        "danish": "Glemt adgangskode?",
+        "spanish": "¿Olvidaste tu contraseña?"
+    },
+    "create_your_account": {
+        "english": "Create your account",
+        "danish": "Lav din konto",
+        "spanish": "Crea tu cuenta"
+    },
+    "happening_now": {
+        "english": "Happening now",
+        "danish": "Sker lige nu",
+        "spanish": "Ocurre ahora"
+    },
+    "join_today": {
+        "english": "Join today.",
+        "danish": "Tilmeld dig i dag.",
+        "spanish": "Únete hoy."
+    },
+    "signup": {
+        "english": "Sign up",
+        "danish": "Tilmeld dig",
+        "spanish": "Registrarse"
+    },
+    "choose_new_password": {
+        "english": "Choose a new password",
+        "danish": "Vælg en ny adgangskode",
+        "spanish": "Elige una nueva contraseña"
+    },
+    "password_hint": {
+        "english": "Make sure it's at least 8 characters long and hard to guess.",
+        "danish": "Sørg for, at den er mindst 8 tegn lang og svær at gætte.",
+        "spanish": "Asegúrate de que tenga al menos 8 caracteres y sea difícil de adivinar."
+    },
+    "new_password": {
+        "english": "New password",
+        "danish": "Ny adgangskode",
+        "spanish": "Nueva contraseña"
+    },
+    "reset_password": {
+        "english": "Reset password",
+        "danish": "Nulstil adgangskode",
+        "spanish": "Restablecer contraseña"
+    },
+    "go_to_login": {
+        "english": "Go to login",
+        "danish": "Gå til login",
+        "spanish": "Ir al inicio de sesión"
+    },
+    "profile_picture": {
+        "english": "Profile picture",
+        "danish": "Profilbillede",
+        "spanish": "Foto de perfil"
+    },
+    "blocked": {
+        "english": "BLOCKED",
+        "danish": "BLOKERET",
+        "spanish": "BLOQUEADO"
+    },
+    "edit_profile": {
+        "english": "Edit profile",
+        "danish": "Rediger profil",
+        "spanish": "Editar perfil"
+    },
+    "bio": {
+        "english": "Bio",
+        "danish": "Bio",
+        "spanish": "Biografía"
+    },
+    "avatar": {
+        "english": "Avatar",
+        "danish": "Avatar",
+        "spanish": "Avatar"
+    },
+    "upload_images_hint": {
+        "english": "Please upload images under 4 MB in JPG, JPEG, PNG, or GIF format",
+        "danish": "Upload venligst billeder under 4 MB i JPG, JPEG, PNG eller GIF-format",
+        "spanish": "Sube imágenes de menos de 4 MB en formato JPG, JPEG, PNG o GIF"
+    },
+    "save": {
+        "english": "Save",
+        "danish": "Gem",
+        "spanish": "Guardar"
+    },
+    "delete_profile": {
+        "english": "Delete profile",
+        "danish": "Slet profil",
+        "spanish": "Eliminar perfil"
+    },
+    "confirm_delete": {
+        "english": "Type DELETE to confirm profile deletion:",
+        "danish": "Skriv DELETE for at bekræfte sletning af profil:",
+        "spanish": "Escribe DELETE para confirmar la eliminación del perfil:"
+    },
+    "deletion_cancelled": {
+        "english": "Profile deletion cancelled",
+        "danish": "Profil-sletning annulleret",
+        "spanish": "Eliminación de perfil cancelada"
+    },
+    "joined": {
+        "english": "Joined",
+        "danish": "Tilmeldt",
+        "spanish": "Se unió"
+    },
+    "following": {
+        "english": "Following",
+        "danish": "Følger",
+        "spanish": "Siguiendo"
+    },
+    "followers": {
+        "english": "Followers",
+        "danish": "Følgere",
+        "spanish": "Seguidores"
+    },
+    "posts": {
+        "english": "Posts",
+        "danish": "Opslag",
+        "spanish": "Publicaciones"
+    },
+    "replies": {
+        "english": "Replies",
+        "danish": "Svar",
+        "spanish": "Respuestas"
+    },
+    "media": {
+        "english": "Media",
+        "danish": "Medier",
+        "spanish": "Medios"
+    },
+    "likes": {
+        "english": "Likes",
+        "danish": "Synes godt om",
+        "spanish": "Me gusta"
+    },
+    "empty_state": {
+        "english": "You haven't posted anything yet.",
+        "danish": "Du har ikke postet noget endnu.",
+        "spanish": "Aún no has publicado nada."
     }
 }

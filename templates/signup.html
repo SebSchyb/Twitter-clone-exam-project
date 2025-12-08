@@ -38,7 +38,7 @@
 
       </div>
 
-      <h2 id="loginTitle">Sign up to X</h2>
+      <h2 id="loginTitle">{{ x.lans("signup_to_x") }}</h2>
       <form class="x-dialog__form" action="{{ url_for('signup') }}" mix-post autocomplete="off">
 
         <div>
@@ -68,13 +68,13 @@
           </label>
           <input name="user_password" id="password" type="password" mix-check="{{ x.REGEX_USER_PASSWORD }}">
         </div>
-        <button class="x-dialog__btn" mix-default="Sign up" mix-await="Signing up...">
-          Sign up
+        <button class="x-dialog__btn" mix-default="Sign up" mix-await="{{ x.lans('signing_up') }}">
+          {{ x.lans("signup_button") }}
         </button>
       </form>
       <p class="x-dialog__alt">
-        Have an account?
-        <a href="{{ url_for('login') }}">Log in</a>
+        {{ x.lans("have_account") }}
+        <a href="{{ url_for('login') }}">{{ x.lans("login") }}</a>
       </p>
     </div>
 
