@@ -24,7 +24,7 @@ app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = Path(app.root_path) / 'static' / 'images'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif']
-app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # e.g. 4 MB
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # 4 mb
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
  
@@ -211,7 +211,6 @@ def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
         return "error"
 
     db, cursor = x.db()
-    # Choose SQL query based on mode
     if blockedonly:
         q = """
         SELECT 
@@ -825,7 +824,6 @@ def api_update_profile():
             toast_error = render_template("___toast_error.html", message="Username already registered")
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
-        # Fallback
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
