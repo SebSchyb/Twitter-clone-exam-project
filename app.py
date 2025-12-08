@@ -17,8 +17,6 @@ import csv
 from pathlib import Path
 from flask import current_app
 
-BASE_DIR = Path(__file__).resolve().parent
-
 
 
 from icecream import ic
@@ -34,8 +32,7 @@ app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = Path(app.root_path) / 'static' / 'images'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif']
-app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # e.g. 4 MB
-
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # 4 mb
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
  
@@ -60,14 +57,8 @@ def global_variables():
         dictionary = dictionary,
         x = x
     )
-#########################
-
-# @app.errorhandler(RequestEntityTooLarge)
-# def handle_file_too_large(e):
-#     toast_error = render_template("___toast_error.html", message="File too large. Maximum size is 4 MB")
-#     return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 400
-
 ##############################
+
 @app.route("/login", methods=["GET", "POST"])
 @app.route("/login/<lan>", methods=["GET", "POST"])
 @x.no_cache
@@ -81,11 +72,9 @@ def login(lan = "english"):
         return render_template("login.html", lan=lan)
 
     if request.method == "POST":
-        try:
-            # Validate           
+        try:          
             user_email = x.validate_user_email(lan)
             user_password = x.validate_user_password(lan)
-            # Connect to the database
             q = "SELECT * FROM users WHERE user_email = %s AND user_is_active = 1"
             db, cursor = x.db()
             cursor.execute(q, (user_email,))
@@ -108,13 +97,10 @@ def login(lan = "english"):
         except Exception as ex:
             ic(ex)
 
-            # User errors😂😂😂
             if ex.args[1] == 400:
                 toast_error = render_template("___toast_error.html", message=ex.args[0])
                 return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 400
             
-
-            # System or developer error
             toast_error = render_template("___toast_error.html", message="System under maintenance")
             return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
@@ -122,14 +108,12 @@ def login(lan = "english"):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
-@app.post("/api_delete_profile")
-
-
+@app.post("/api-delete-profile")
 def api_delete_profile():
     try:
         user = session.get("user", "")
         if not user:
-            return "error", 400
+            return "error not user", 400
 
         db, cursor = x.db()
         q = "SELECT user_pk FROM users WHERE user_pk = %s"
@@ -172,7 +156,6 @@ def signup(lan = "english"):
 
     if request.method == "POST":
         try:
-            # Validate
             user_email = x.validate_user_email()
             user_password = x.validate_user_password()
             user_username = x.validate_user_username()
@@ -186,8 +169,6 @@ def signup(lan = "english"):
 
             user_hashed_password = generate_password_hash(user_password)
 
-            # Connect to the database
-            # q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
             q = """INSERT INTO users (
                 user_pk,
                 user_email,
@@ -213,12 +194,10 @@ def signup(lan = "english"):
             return f"""<mixhtml mix-redirect="{ url_for('login') }"></mixhtml>""", 400
         except Exception as ex:
             ic(ex)
-            # User errors
             if ex.args[1] == 400:
                 toast_error = render_template("___toast_error.html", message=ex.args[0])
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
             
-            # Database errors
             if "Duplicate entry" and user_email in str(ex): 
                 toast_error = render_template("___toast_error.html", message="Email already registered")
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
@@ -226,7 +205,6 @@ def signup(lan = "english"):
                 toast_error = render_template("___toast_error.html", message="Username already registered")
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
             
-            # System or developer error
             toast_error = render_template("___toast_error.html", message="System under maintenance")
             return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
@@ -242,12 +220,7 @@ def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
         return "error"
 
     db, cursor = x.db()
-
-    # ----------------------------
-    # Choose SQL query based on mode
-    # ----------------------------
     if blockedonly:
-        # Admin-only: get ONLY blocked posts
         q = """
         SELECT 
             users.*,
@@ -266,7 +239,6 @@ def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
         params = (user["user_pk"],)
 
     elif not useronly:
-        # GLOBAL feed (only unblocked posts)
         q = """
         SELECT 
             users.*,
@@ -305,19 +277,10 @@ def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
         """
         params = (user["user_pk"], target_user_pk)
 
-
-
-
-    # ----------------------------
-    # Execute selected query
-    # ----------------------------
     ic(q)
     cursor.execute(q, params)
     tweets = cursor.fetchall()
 
-    # ----------------------------
-    # Attach comments
-    # ----------------------------
     post_pks = [t["post_pk"] for t in tweets]
 
     if post_pks:
@@ -336,12 +299,10 @@ def grab_tweets(useronly=False, target_user_pk=None, blockedonly=False):
         cursor.execute(q, tuple(post_pks))
         comments = cursor.fetchall()
 
-        # Group comments by post
         comments_by_post = {pk: [] for pk in post_pks}
         for c in comments:
             comments_by_post[c["post_fk"]].append(c)
 
-        # Attach comments to each tweet
         for t in tweets:
             t["comments"] = comments_by_post.get(t["post_pk"], [])
     else:
@@ -397,10 +358,8 @@ def verify_account():
     except Exception as ex:
         ic(ex)
         if "db" in locals(): db.rollback()
-        # User errors
         if ex.args[1] == 400: return ex.args[0], 400    
 
-        # System or developer error
         return "Cannot verify user"
 
     finally:
@@ -445,7 +404,6 @@ def home_comp():
         if "db" in locals(): db.close()
 
 
-
 ##############################
 @app.get("/profile")
 def profile():
@@ -456,21 +414,12 @@ def profile():
 
         db, cursor = x.db()
 
-        q_user = "SELECT * FROM users WHERE user_pk = %s"
-        cursor.execute(q_user, (session_user["user_pk"],))
+        q = "SELECT * FROM users WHERE user_pk = %s"
+        cursor.execute(q, (session_user["user_pk"],))
         user = cursor.fetchone()
         if not user:
             return "error"
 
-        # q_posts = """
-        #     SELECT *
-        #     FROM posts
-        #     JOIN users ON user_pk = post_user_fk
-        #     WHERE post_user_fk = %s
-        #     ORDER BY post_pk DESC
-        # """
-        # cursor.execute(q_posts, (user["user_pk"],))
-        # tweets = cursor.fetchall()
         tweets = grab_tweets(useronly=True, target_user_pk=session_user["user_pk"])
 
         profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True)
@@ -485,7 +434,6 @@ def profile():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
 ##############################
 @app.post("/toggle_follow")
 def toggle():
@@ -498,29 +446,24 @@ def toggle():
         if not user_pk:
             return jsonify({"error": "missing_user_pk"}), 400
         db, cursor = x.db()
-        # check if the user is already following
         q = "SELECT COUNT(*) AS cnt FROM follows WHERE user_fk = %s AND follower_fk = %s"
         cursor.execute(q, (user_pk, user["user_pk"]))
         already = cursor.fetchone()["cnt"] > 0
 
         if already:
-            # unfollow (delete)
             q = "DELETE FROM follows WHERE user_fk = %s AND follower_fk = %s"
             cursor.execute(q, (user_pk, user["user_pk"]))
             db.commit()
             followed = False
         else:
-            # follow (insert)
             q = "INSERT INTO follows (user_fk, follower_fk) VALUES (%s, %s)"
             try:
                 cursor.execute(q, (user_pk, user["user_pk"]))
                 db.commit()
             except Exception as e:
-                # handle race/duplicate gracefully
                 db.rollback()
             followed = True
 
-        # get updated follower count
         q = "SELECT COUNT(*) AS cnt FROM follows WHERE user_fk = %s"
         cursor.execute(q, (user_pk,))
         follower_count = cursor.fetchone()["cnt"]
@@ -535,10 +478,6 @@ def toggle():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
-
-
-
 
 ##############################
 @app.post("/toggle_like")
@@ -555,30 +494,25 @@ def toggle_like():
 
         db, cursor = x.db()
 
-        # check if the user already liked the post
         q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s AND user_fk = %s"
         cursor.execute(q, (post_pk, user["user_pk"]))
         already = cursor.fetchone()["cnt"] > 0
 
         if already:
-            # unlike (delete)
             q = "DELETE FROM likes WHERE post_fk = %s AND user_fk = %s"
             cursor.execute(q, (post_pk, user["user_pk"]))
             db.commit()
             liked = False
         else:
-            # like (insert)
             q = "INSERT INTO likes (post_fk, user_fk) VALUES (%s, %s)"
             try:
                 cursor.execute(q, (post_pk, user["user_pk"]))
                 db.commit()
             except Exception as e:
-                # handle race/duplicate gracefully
                 ic(e)
                 db.rollback()
             liked = True
 
-        # get updated like count
         q = "SELECT COUNT(*) AS cnt FROM likes WHERE post_fk = %s"
         cursor.execute(q, (post_pk,))
         like_count = cursor.fetchone()["cnt"]
@@ -598,36 +532,27 @@ def toggle_like():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
-
-
 ##############################
 @app.patch("/api-edit-post/<post_pk>")
 def api_edit_post(post_pk):
     try:
-        # User must be logged in
         user = session.get("user", "")
         if not user:
             toast_error = render_template("___toast_error.html", message="You must be logged in")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # User must not be blocked
         if user["user_is_blocked"] == 1:
             toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
         
-        # FormData input (NOT JSON)
         message = request.form.get("message", "").strip()
 
-        # Validate message length
         if not (1 <= len(message) <= x.POST_MAX_LEN):
             toast_error = render_template("___toast_error.html", message="Invalid post length")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # DB connection
         db, cursor = x.db()
 
-        # Ownership check
         q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         row = cursor.fetchone()
@@ -640,12 +565,10 @@ def api_edit_post(post_pk):
             toast_error = render_template("___toast_error.html", message="You cannot edit this post")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # Update post
         q = "UPDATE posts SET post_message = %s WHERE post_pk = %s"
         cursor.execute(q, (message, post_pk))
         db.commit()
 
-        # Toast + re-render post container
         toast_ok = render_template("___toast_ok.html", message="Post updated")
         html_post_container = render_template("___post_container.html")
 
@@ -686,7 +609,6 @@ def api_delete_post(post_pk):
 
         db, cursor = x.db()
 
-        # Verify ownership
         q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         row = cursor.fetchone()
@@ -699,7 +621,6 @@ def api_delete_post(post_pk):
             toast_error = render_template("___toast_error.html", message="You cannot delete this post")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # Delete post
         q = "DELETE FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         db.commit()
@@ -722,7 +643,6 @@ def api_delete_post(post_pk):
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
 
 
 ##############################
@@ -771,12 +691,10 @@ def api_create_post():
         ic(ex)
         if "db" in locals(): db.rollback()
 
-        # User errors
         if "x-error post" in str(ex):
             toast_error = render_template("___toast_error.html", message=f"Post - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # System or developer error
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
@@ -816,14 +734,12 @@ def api_create_comment(post_pk):
             toast_error = render_template("___toast_error.html", message=f"Comment - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        # System or developer error
         ic(ex)
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()    
-
 
 
 ##############################
@@ -917,7 +833,6 @@ def api_update_profile():
             toast_error = render_template("___toast_error.html", message="Username already registered")
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
-        # Fallback
         toast_error = render_template("___toast_error.html", message="System under maintenance")
         return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
@@ -926,12 +841,10 @@ def api_update_profile():
         if "db" in locals(): db.close()
 
 
-###########
 ##############################
 @app.post("/api-search")
 def api_search():
     try:
-        # TODO: The input search_for must be validated
         search_for = request.form.get("search_for", "")
         if not search_for: return """empty search field""", 400
         part_of_query = f"%{search_for}%"
@@ -948,6 +861,8 @@ def api_search():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
+##############################
+
 @app.get("/test-admin-route")
 def test_admin_route():
     try:
@@ -960,6 +875,8 @@ def test_admin_route():
     except Exception as ex:
         ic(ex)
 
+##############################
+
 @app.patch("/admin-block-post/<post_pk>")
 def admin_block_post(post_pk):
     try:
@@ -971,8 +888,6 @@ def admin_block_post(post_pk):
             return "Not allowed for non-admin users.", 400
 
         db, cursor = x.db()
-
-        # Fetch post
         q = "SELECT * FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         post = cursor.fetchone()
@@ -984,12 +899,10 @@ def admin_block_post(post_pk):
         current_state = post["post_is_blocked"]
         new_state = 1 if current_state == 0 else 0
 
-        # Update
         q = "UPDATE posts SET post_is_blocked = %s WHERE post_pk = %s"
         cursor.execute(q, (new_state, post_pk))
         db.commit()
 
-        # Email owner
         q = """
         SELECT users.user_email
         FROM users
@@ -1009,7 +922,6 @@ def admin_block_post(post_pk):
                 x.send_email(owner["user_email"], "Post Unblocked", email_html)
                 toast = render_template("___toast_ok.html", message="Post is now unblocked")
 
-        # Render updated toggle button
         updated_button = render_template(
             "__admin_toggle_post_button.html", 
             tweet={**post, "post_is_blocked": new_state}
@@ -1031,8 +943,8 @@ def admin_block_post(post_pk):
         if "db" in locals(): db.close()
 
 
-
 ##############################
+
 @app.patch("/admin-block-user")
 def admin_block_user():
     try:
@@ -1040,7 +952,6 @@ def admin_block_user():
         if not admin:
             return "No admin user found"
 
-        # Must be admin
         if admin.get("user_is_admin") != 1:
             return "Not allowed for non-admin users.", 400
 
@@ -1049,7 +960,6 @@ def admin_block_user():
 
         db, cursor = x.db()
 
-        # 1. Fetch the user to toggle
         q = "SELECT * FROM users WHERE user_pk = %s"
         cursor.execute(q, (user_pk,))
         user = cursor.fetchone()
@@ -1060,14 +970,12 @@ def admin_block_user():
 
         is_blocked = user["user_is_blocked"]
 
-        # 2. Toggle
         new_state = 1 if is_blocked == 0 else 0
 
         q = "UPDATE users SET user_is_blocked = %s WHERE user_pk = %s"
         cursor.execute(q, (new_state, user_pk))
         db.commit()
 
-        # 3. Send email
         if new_state == 1:
             email_html = "Your account has been blocked by an administrator."
             x.send_email(user["user_email"], "Account Blocked", email_html)
@@ -1077,7 +985,6 @@ def admin_block_user():
             x.send_email(user["user_email"], "Account Unblocked", email_html)
             toast = render_template("___toast_ok.html", message="User is now unblocked")
 
-        # 4. Render updated button
         updated_button_html = render_template(
             "__admin_toggle_user_button.html",
             user={**user, "user_is_blocked": new_state}
@@ -1154,6 +1061,7 @@ def get_data_from_sheet():
         pass
 
 ##############################
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
 
@@ -1194,6 +1102,7 @@ def forgot_password():
             if "db" in locals(): db.close()
 
 ##############################
+
 @app.route("/reset-password/<reset_key>", methods=["GET", "POST"])
 def reset_password(reset_key):
 
@@ -1226,8 +1135,8 @@ def reset_password(reset_key):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
-
 ##############################
+
 @app.get("/<username>")
 def user_profile(username):
     try:
@@ -1236,9 +1145,7 @@ def user_profile(username):
             return redirect(url_for("login"))
 
         db, cursor = x.db()
-
-        # q_user = "SELECT * FROM users WHERE user_username = %s"
-        q_user = """SELECT 
+        q = """SELECT 
             users.*,
             EXISTS(
                 SELECT 1 
@@ -1250,7 +1157,7 @@ def user_profile(username):
         WHERE users.user_username = %s
         LIMIT 1;
         """
-        cursor.execute(q_user, (session_user["user_pk"], username,))
+        cursor.execute(q, (session_user["user_pk"], username,))
         user = cursor.fetchone()
         if not user:
             return "error user not found"
@@ -1270,8 +1177,8 @@ def user_profile(username):
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-
 ##############################
+
 @app.get("/admin")
 def get_admin():
     try:
@@ -1279,10 +1186,8 @@ def get_admin():
 
         if user["user_is_admin"] == 0:
             return redirect(url_for("home"))
-        db, cursor = x.db();
-        #grab blocked tweets
+        db, cursor = x.db()
         tweets = grab_tweets(blockedonly=True)
-        #grab blocked users
         q = "SELECT * FROM users WHERE user_is_blocked = 1"
         cursor.execute(q,)
         blocked_users = cursor.fetchall()
@@ -1296,6 +1201,7 @@ def get_admin():
         pass
 
 ##############################
+
 @app.get("/grok")
 def get_grok():
     try:

@@ -96,7 +96,6 @@
 
         <aside>
             <form id="search_form" class="p-relative">
-                <!-- <input mix-post="/api-search" mix-input mix-delay="300" name="search_for" type="text" placeholder="Search Twitter"> -->
                 <input id="txt_search_for" name="search_for" type="text" placeholder="Search Twitter"
                     oninput="get_search_results('/api-search', 'post', '#search_form', 'parse_search_results')">
                 <button class="cursor-pointer">Search</button>
@@ -106,7 +105,7 @@
                 p-absolute top-8 left-0 w-full bg-c-white h-50 pa-4
                 border-1 border-c-gray:+50 rounded-sm">
                 </div>
-            </form> 
+            </form>
 
             <div class="border-1 border-c-gray:+50 rounded-md pa-3">
                 <h2 class="text-120 text-c-black text-w-bold">What's happening now</h2>
