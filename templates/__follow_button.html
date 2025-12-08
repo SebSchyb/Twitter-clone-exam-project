@@ -1,9 +1,5 @@
-<button
-    type="button"
+<button type="button"
     class="px-4 py-1 text-c-white {{ 'bg-c-blue' if user.followed == 1 else 'bg-c-black' }} rounded-lg follow-button cursor-pointer ts-200 mx-2"
-    hover="bg-c-blue"
-    id="follow-{{user.user_pk}}"
-    data-user="{{user.user_pk}}"
->
+    hover="bg-c-blue" id="follow-{{user.user_pk}}" data-user="{{user.user_pk}}">
     {% if user.followed == 1%} Unfollow {% else %} Follow {%endif%}
 </button>

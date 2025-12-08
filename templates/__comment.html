@@ -1,10 +1,7 @@
 <article class="comment post" id="comment-{{comment.comment_pk}}">
     <a href="/{{comment.user_username}}" mix-get>
-        <img
-            src="{{ url_for('static', filename='images/'~(comment.user_avatar_path if comment.user_avatar_path else 'unknown.jpg')) }}"
-            alt="Profile Picture"
-            class="w-8 h-8 rounded-full pointer-e-none"
-        />
+        <img src="{{ url_for('static', filename='images/'~(comment.user_avatar_path if comment.user_avatar_path else 'unknown.jpg')) }}"
+            alt="Profile Picture" class="w-8 h-8 rounded-full pointer-e-none" />
     </a>
     <div class="post-content">
         <div class="post-header">
@@ -13,11 +10,8 @@
                     {{ comment.user_first_name }} {{ comment.user_last_name }}
                 </span>
             </a>
-            <a href="/{{comment.user_username}}" mix-get
-                ><span class="handle pointer-e-none !text-w-normal"
-                    >@{{ comment.user_username }}</span
-                ></a
-            >
+            <a href="/{{comment.user_username}}" mix-get><span class="handle pointer-e-none !text-w-normal">@{{
+                    comment.user_username }}</span></a>
             ·
             <span class="time">1d</span>
         </div>
