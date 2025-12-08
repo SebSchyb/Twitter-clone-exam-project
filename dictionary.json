@@ -11,13 +11,13 @@
     },
     "email": {
         "english": "Email",
-        "danish": "E-mail",
-        "spanish": "Correo electrónico"
+        "danish": "Email",
+        "spanish": "correo electronico"
     },
     "password": {
         "english": "Password",
         "danish": "Adgangskode",
-        "spanish": "Contraseña"
+        "spanish": "Clave"
     },
     "logout": {
         "english": "Logout",
@@ -319,11 +319,6 @@
         "danish": "tegn",
         "spanish": "caracteres"
     },
-    "signup_button": {
-        "english": "Sign up",
-        "danish": "Tilmeld dig",
-        "spanish": "Registrarse"
-    },
     "signing_up": {
         "english": "Signing up...",
         "danish": "Tilmelding...",
@@ -483,5 +478,85 @@
         "english": "You haven't posted anything yet.",
         "danish": "Du har ikke postet noget endnu.",
         "spanish": "Aún no has publicado nada."
+    },
+    "password_updated": {
+        "english": "Password updated",
+        "danish": "Adgangskode opdateret",
+        "spanish": "Contraseña actualizada"
+    },
+    "password_changed_success": {
+        "english": "Your password has been successfully changed.",
+        "danish": "Din adgangskode er blevet ændret.",
+        "spanish": "Tu contraseña ha sido cambiada con éxito."
+    },
+    "forgot_password_title": {
+        "english": "Forgot password",
+        "danish": "Glemt adgangskode",
+        "spanish": "Olvidé mi contraseña"
+    },
+    "reset_your_password": {
+        "english": "Reset your password",
+        "danish": "Nulstil din adgangskode",
+        "spanish": "Restablece tu contraseña"
+    },
+    "forgot_password_instructions": {
+        "english": "Enter the email associated with your account and we'll send you a reset link.",
+        "danish": "Indtast den e-mail, der er knyttet til din konto, så sender vi dig et link til nulstilling.",
+        "spanish": "Introduce el correo asociado a tu cuenta y te enviaremos un enlace para restablecerla."
+    },
+    "send_reset_link": {
+        "english": "Send reset link",
+        "danish": "Send nulstillingslink",
+        "spanish": "Enviar enlace de restablecimiento"
+    },
+    "back_to_login": {
+        "english": "Back to login",
+        "danish": "Tilbage til login",
+        "spanish": "Volver al inicio de sesión"
+    },
+    "welcome_to_x": {
+        "english": "Welcome to X",
+        "danish": "Velkommen til X",
+        "spanish": "Bienvenido a X"
+    },
+    "verify_account": {
+        "english": "You need to verify your account",
+        "danish": "Du skal bekræfte din konto",
+        "spanish": "Debes verificar tu cuenta"
+    },
+    "click_to_verify": {
+        "english": "Click here to get verified",
+        "danish": "Klik her for at blive verificeret",
+        "spanish": "Haz clic aquí para verificar tu cuenta"
+    },
+    "see_blocked_posts": {
+        "english": "See Blocked posts",
+        "danish": "Se blokerede opslag",
+        "spanish": "Ver publicaciones bloqueadas"
+    },
+    "blocked_tweets": {
+        "english": "Blocked tweets",
+        "danish": "Blokerede tweets",
+        "spanish": "Tweets bloqueados"
+    },
+    "no_blocked_tweets": {
+        "english": "No blocked tweets",
+        "danish": "Ingen blokerede tweets",
+        "spanish": "No hay tweets bloqueados"
+    },
+    "see_blocked_users": {
+        "english": "See Blocked Users",
+        "danish": "Se blokerede brugere",
+        "spanish": "Ver usuarios bloqueados"
+    },
+    "blocked_users": {
+        "english": "Blocked Users",
+        "danish": "Blokerede brugere",
+        "spanish": "Usuarios bloqueados"
+    },
+    "no_blocked_users": {
+        "english": "No blocked users",
+        "danish": "Ingen blokerede brugere",
+        "spanish": "No hay usuarios bloqueados"
     }
 }

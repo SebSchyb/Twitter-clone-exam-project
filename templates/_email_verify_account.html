@@ -1,5 +1,7 @@
-<h1>Welcome to X</h1>
-<h2>You need to verify your account</h2>
+<h1>{{ x.lans("welcome_to_x") }}</h1>
+<h2>{{ x.lans("verify_account") }}</h2>
 <p>
-    <a href="{{domain}}/verify-account?key={{ user_verification_key }}">Click here to get verified</a>
+    <a href="{{ domain }}/verify-account?key={{ user_verification_key }}">
+        {{ x.lans("click_to_verify") }}
+    </a>
 </p>
