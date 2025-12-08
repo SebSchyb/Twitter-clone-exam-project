@@ -558,5 +558,15 @@
         "english": "1d",
         "danish": "1d",
         "spanish": "1d"
+    },
+    "what_is_new": {
+        "english": "What is new?",
+        "danish": "hvad er nyt?",
+        "spanish": "¿Que hay de nuevo?"
+    },
+    "posting": {
+        "english": "posting...",
+        "danish": "slår op...",
+        "spanish": "publicar..."
     }
 }
