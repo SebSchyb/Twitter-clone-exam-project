@@ -97,7 +97,7 @@
 
         <aside>
             <form id="search_form" class="p-relative">
-                <input id="txt_search_for" name="search_for" type="text" placeholder="Search Twitter"
+                <input id="txt_search_for" name="search_for" type="text" placeholder="{{ x.lans('search_twitter') }}"
                     oninput="get_search_results('/api-search', 'post', '#search_form', 'parse_search_results')">
                 <button class="cursor-pointer">{{ x.lans("search") }}</button>
 

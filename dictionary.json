@@ -294,11 +294,6 @@
         "danish": "Svar",
         "spanish": "Responder"
     },
-    "profile_picture_alt": {
-        "english": "Profile Picture",
-        "danish": "Profilbillede",
-        "spanish": "Foto de perfil"
-    },
     "signup_to_x": {
         "english": "Sign up to X",
         "danish": "Tilmeld dig X",
@@ -390,7 +385,7 @@
         "spanish": "Ir al inicio de sesión"
     },
     "profile_picture": {
-        "english": "Profile Picture",
+        "english": "Profile picture",
         "danish": "Profilbillede",
         "spanish": "Foto de perfil"
     },
