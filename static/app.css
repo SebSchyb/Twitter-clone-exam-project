@@ -85,7 +85,6 @@ textarea {
 
         main {
             grid-column: 1 / -1;
-            margin-left: 1rem;
             border: none;
         }
 

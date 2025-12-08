@@ -568,5 +568,10 @@
         "english": "posting...",
         "danish": "slår op...",
         "spanish": "publicar..."
+    },
+    "signup_button": {
+        "english": "Sign up",
+        "danish": "Tilmeld dig",
+        "spanish": "Registrarse"
     }
 }

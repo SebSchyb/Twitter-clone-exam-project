@@ -1,13 +1,18 @@
 <div class="d-flex a-items-center">
     <a href="/{{suggestion.user_username}}" mix-get>
-        <img src="{{ url_for('static', filename='images/' ~ (suggestion.user_avatar_path if suggestion.user_avatar_path else 'unknown.jpg')) }}"
-            class="w-8 h-8 rounded-full pointer-e-none" alt="Profile Picture" />
+        <img
+            src="{{ url_for('static', filename='images/' ~ (suggestion.user_avatar_path if suggestion.user_avatar_path else 'unknown.jpg')) }}"
+            class="w-8 h-8 rounded-full pointer-e-none"
+            alt="Profile Picture"
+        />
     </a>
     <div class="w-full ml-2">
-        <a href="/{{suggestion.user_username}}" mix-get>
+        <a href="/{{suggestion.user_username}}" mix-get class="text-c-black">
             <p class="pointer-e-none">
                 {{ suggestion.user_first_name }} {{ suggestion.user_last_name }}
-                <span class="pointer-e-none text-c-gray:+20 text-70">@{{ suggestion.user_username }}</span>
+                <span class="pointer-e-none text-c-gray:+20 text-70"
+                    >@{{ suggestion.user_username }}</span
+                >
             </p>
         </a>
     </div>
