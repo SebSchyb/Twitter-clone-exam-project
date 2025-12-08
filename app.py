@@ -87,7 +87,7 @@ def login(lan = "english"):
                 raise Exception(dictionary.user_not_verified[lan], 400)
 
             user.pop("user_password")
-
+            user["user_language"] = lan
             session["user"] = user
             return f"""<browser mix-redirect="/home"></browser>"""
         
