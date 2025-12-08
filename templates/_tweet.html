@@ -28,12 +28,12 @@
                     </button>
                     <form mix-delete action="/api-delete-post/{{tweet.post_pk}}" class="text-a-center">
                         <button type="submit" data-post="{{tweet.post_pk}}" class="delete delete-btn cursor-pointer"
-                            mix-default="Delete" mix-await="Please wait..." onclick="
+                            mix-default="Delete" mix-await="{{ x.lans('please_wait') }}" onclick="
                                 if (!confirm('Confirm action?')) {
                                     event.preventDefault();
                                 }
                             ">
-                            Delete
+                            {{ x.lans("delete") }}
                         </button>
                     </form>
                     {% if user.user_is_admin == 1 %}
