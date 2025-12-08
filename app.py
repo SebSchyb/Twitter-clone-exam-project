@@ -16,7 +16,7 @@ import io
 import csv
 from pathlib import Path
 from flask import current_app
-
+BASE_DIR = Path(__file__).resolve().parent
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
 #Disable IC if in production
@@ -1048,7 +1048,7 @@ def get_data_from_sheet():
 
         # Save data to the file
         dict_path = BASE_DIR / "dictionary.json"
-        with dict_path.open("r", encoding="utf-8") as f:
+        with dict_path.open("w", encoding="utf-8") as f:
             f.write(json_data)
 
         return "ok"
