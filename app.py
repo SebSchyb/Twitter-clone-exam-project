@@ -99,7 +99,7 @@ def login(lan = "english"):
                 toast_error = render_template("___toast_error.html", message=ex.args[0])
                 return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 400
             
-            toast_error = render_template("___toast_error.html", message="System under maintenance")
+            toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
             return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
         finally:
@@ -119,10 +119,10 @@ def api_delete_profile():
         row = cursor.fetchone()
 
         if not row: 
-            toast_error = render_template("_toast_error.html", message="ok")
+            toast_error = render_template("_toast_error.html", message=x.lans("ok"))
             return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
         if row["user_pk"]!=user["user_pk"]:
-            toast_error = render_template("_toast_error.html", message="det kan du ikke")
+            toast_error = render_template("_toast_error.html", message=x.lans("you_can't_do_that"))
             return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
         
         q = "UPDATE users SET user_is_active = 0 WHERE user_pk = %s"
@@ -134,7 +134,7 @@ def api_delete_profile():
         
     except Exception as ex:
         ic(ex)
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -197,13 +197,13 @@ def signup(lan = "english"):
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
             
             if "Duplicate entry" and user_email in str(ex): 
-                toast_error = render_template("___toast_error.html", message="Email already registered")
+                toast_error = render_template("___toast_error.html", message=x.lans("email_already_registered")) 
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
             if "Duplicate entry" and user_username in str(ex): 
-                toast_error = render_template("___toast_error.html", message="Username already registered")
+                toast_error = render_template("___toast_error.html", message=x.lans("username_already_registered"))
                 return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
             
-            toast_error = render_template("___toast_error.html", message="System under maintenance")
+            toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
             return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
         finally:
@@ -390,7 +390,7 @@ def home_comp():
         db, cursor = x.db()
 
         tweets = grab_tweets(useronly=False)
-        ic("home-comp fired")
+
         html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
     except Exception as ex:
@@ -536,17 +536,17 @@ def api_edit_post(post_pk):
     try:
         user = session.get("user", "")
         if not user:
-            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            toast_error = render_template("___toast_error.html", message=x.lans("you_must_be_logged_in"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         if user["user_is_blocked"] == 1:
-            toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
+            toast_error = render_template("___toast_error.html", message=x.lans("your_account_is_blocked_please_check_your_email"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
         
         message = request.form.get("message", "").strip()
 
         if not (1 <= len(message) <= x.POST_MAX_LEN):
-            toast_error = render_template("___toast_error.html", message="Invalid post length")
+            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         db, cursor = x.db()
@@ -556,18 +556,18 @@ def api_edit_post(post_pk):
         row = cursor.fetchone()
 
         if not row:
-            toast_error = render_template("___toast_error.html", message="Post not found")
+            toast_error = render_template("___toast_error.html", message=x.lans("post_not_found"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         if row["post_user_fk"] != user["user_pk"]:
-            toast_error = render_template("___toast_error.html", message="You cannot edit this post")
+            toast_error = render_template("___toast_error.html", message=x.lans("you_cannot_edit_this_post"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         q = "UPDATE posts SET post_message = %s WHERE post_pk = %s"
         cursor.execute(q, (message, post_pk))
         db.commit()
 
-        toast_ok = render_template("___toast_ok.html", message="Post updated")
+        toast_ok = render_template("___toast_ok.html", message=x.lans("post_updated"))
         html_post_container = render_template("___post_container.html")
 
         return f"""
@@ -580,7 +580,7 @@ def api_edit_post(post_pk):
         ic(ex)
         if "db" in locals():
             db.rollback()
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
 
     finally:
@@ -602,7 +602,7 @@ def api_delete_post(post_pk):
             return "Missing post ID", 400
         
         if not user:
-            toast_error = render_template("___toast_error.html", message="You must be logged in")
+            toast_error = render_template("___toast_error.html", message=x.lans("you_must_be_logged_in"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         db, cursor = x.db()
@@ -612,18 +612,18 @@ def api_delete_post(post_pk):
         row = cursor.fetchone()
 
         if not row:
-            toast_error = render_template("___toast_error.html", message="Post not found")
+            toast_error = render_template("___toast_error.html", message=x.lans("post_not_found"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         if row["post_user_fk"] != user["user_pk"]:
-            toast_error = render_template("___toast_error.html", message="You cannot delete this post")
+            toast_error = render_template("___toast_error.html", message=x.lans("you_cannot_delete_this_post"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         q = "DELETE FROM posts WHERE post_pk = %s"
         cursor.execute(q, (post_pk,))
         db.commit()
 
-        toast_ok = render_template("___toast_ok.html", message="Post deleted")
+        toast_ok = render_template("___toast_ok.html", message=x.lans("post_deleted"))
         html_post_container = render_template("___post_container.html")
         return f"""
             <browser mix-remove="#tweet-{post_pk}"></browser>
@@ -635,7 +635,7 @@ def api_delete_post(post_pk):
         ic(ex)
         if "db" in locals(): db.rollback()
 
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 500
 
     finally:
@@ -656,7 +656,7 @@ def api_create_post():
         current_user = cursor.fetchone()
         ic(current_user)
         if current_user["user_is_blocked"] == 1:
-            toast_error = render_template("___toast_error.html", message="Your account is blocked - please check your email")
+            toast_error = render_template("___toast_error.html", message=x.lans("your_account_is_blocked_please_check_your_email"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
         user_pk = user["user_pk"]   
         post = x.validate_post(request.form.get("post", ""))
@@ -666,7 +666,7 @@ def api_create_post():
         q = "INSERT INTO posts VALUES(%s, %s, %s, %s, %s, %s)"
         cursor.execute(q, (post_pk, user_pk, post, 0, post_image_path, 0))
         db.commit()
-        toast_ok = render_template("___toast_ok.html", message="The world is reading your post!")
+        toast_ok = render_template("___toast_ok.html", message=x.lans("the_world_is_reading_your_post"))
         tweet = {
             "post_pk": post_pk,
             "user_pk": user_pk,
@@ -690,10 +690,10 @@ def api_create_post():
         if "db" in locals(): db.rollback()
 
         if "x-error post" in str(ex):
-            toast_error = render_template("___toast_error.html", message=f"Post - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
+            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
 
     finally:
@@ -721,7 +721,7 @@ def api_create_comment(post_pk):
             "comment_content": comment,
             "comment_pk": comment_pk
         }
-        toast_ok = render_template("___toast_ok.html", message="The world is reading your comment!")
+        toast_ok = render_template("___toast_ok.html", message=x.lans("the_world_is_reading_your_comment"))
         html_comment = render_template("__comment.html", comment=finalcomment)
         return f"""
         <browser mix-bottom="#toast">{ toast_ok }</browser>
@@ -729,11 +729,11 @@ def api_create_comment(post_pk):
         """
     except Exception as ex:
         if "x-error post" in str(ex):
-            toast_error = render_template("___toast_error.html", message=f"Comment - {x.POST_MIN_LEN} to {x.POST_MAX_LEN} characters")
+            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
         ic(ex)
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
@@ -801,7 +801,7 @@ def api_update_profile():
         user["user_avatar_path"] = user_avatar_path
         session["user"] = user
 
-        toast_ok = render_template("___toast_ok.html", message="Profile updated successfully")
+        toast_ok = render_template("___toast_ok.html", message=x.lans("profile_updated_successfully"))
 
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
@@ -825,13 +825,13 @@ def api_update_profile():
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
         if "Duplicate entry" in str(ex) and user_email in str(ex): 
-            toast_error = render_template("___toast_error.html", message="Email already registered")
+            toast_error = render_template("___toast_error.html", message=x.lans("email_already_registered"))
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         if "Duplicate entry" in str(ex) and user_username in str(ex): 
-            toast_error = render_template("___toast_error.html", message="Username already registered")
+            toast_error = render_template("___toast_error.html", message=x.lans("username_already_registered"))
             return f"""<mixhtml mix-update="#toast">{ toast_error }</mixhtml>""", 400
         
-        toast_error = render_template("___toast_error.html", message="System under maintenance")
+        toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<mixhtml mix-bottom="#toast">{ toast_error }</mixhtml>""", 500
 
     finally:
@@ -891,7 +891,7 @@ def admin_block_post(post_pk):
         post = cursor.fetchone()
 
         if not post:
-            toast = render_template("___toast_error.html", message="Post does not exist")
+            toast = render_template("___toast_error.html", message=x.lans("post_not_found"))
             return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
         current_state = post["post_is_blocked"]
@@ -914,11 +914,11 @@ def admin_block_post(post_pk):
             if new_state == 1:
                 email_html = "Your post has been blocked by an administrator."
                 x.send_email(owner["user_email"], "Post Blocked", email_html)
-                toast = render_template("___toast_ok.html", message="Post is now blocked")
+                toast = render_template("___toast_ok.html", message=x.lans("post_is_now_blocked"))
             else:
                 email_html = "Your post has been unblocked by an administrator."
                 x.send_email(owner["user_email"], "Post Unblocked", email_html)
-                toast = render_template("___toast_ok.html", message="Post is now unblocked")
+                toast = render_template("___toast_ok.html", message=x.lans("post_is_now_unblocked"))
 
         updated_button = render_template(
             "__admin_toggle_post_button.html", 
@@ -963,7 +963,7 @@ def admin_block_user():
         user = cursor.fetchone()
 
         if not user:
-            toast = render_template("___toast_error.html", message="User does not exist")
+            toast = render_template("___toast_error.html", message=x.lans("user_does_not_exist"))
             return f"""<browser mix-bottom="#toast">{toast}</browser>"""
 
         is_blocked = user["user_is_blocked"]
@@ -977,11 +977,11 @@ def admin_block_user():
         if new_state == 1:
             email_html = "Your account has been blocked by an administrator."
             x.send_email(user["user_email"], "Account Blocked", email_html)
-            toast = render_template("___toast_ok.html", message="User is now blocked")
+            toast = render_template("___toast_ok.html", message=x.lans("user_is_now_blocked"))
         else:
             email_html = "Your account has been unblocked by an administrator."
             x.send_email(user["user_email"], "Account Unblocked", email_html)
-            toast = render_template("___toast_ok.html", message="User is now unblocked")
+            toast = render_template("___toast_ok.html", message=x.lans("user_is_now_unblocked"))
 
         updated_button_html = render_template(
             "__admin_toggle_user_button.html",
@@ -1086,7 +1086,7 @@ def forgot_password():
             email_html = f'To reset your password, click here: <a href="{reset_url}">Reset password</a>'
             x.send_email(user_email, "Reset your password", email_html)
 
-            toast_ok = render_template("___toast_ok.html", message="Password reset email sent")
+            toast_ok = render_template("___toast_ok.html", message=x.lans("password_reset_email_sent"))
             return f"""
             <browser mix-bottom="#toast">{ toast_ok }</browser>
             """

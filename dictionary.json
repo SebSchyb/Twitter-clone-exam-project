@@ -23,5 +23,130 @@
         "english": "log out",
         "danish": "logge ud",
         "spanish": "salir"
+    },
+    "user_is_now_unblocked": {
+        "english": "User is now unblocked",
+        "danish": "Brugeren er nu afblokeret",
+        "spanish": "El usuario ahora está desbloqueado"
+    },
+    "password_reset_email_sent": {
+        "english": "Password reset email sent",
+        "danish": "Email til nulstilling af adgangskode sendt",
+        "spanish": "Correo de restablecimiento de contraseña enviado"
+    },
+    "your_account_is_blocked_please_check_your_email": {
+        "english": "Your account is blocked - please check your email",
+        "danish": "Din konto er blokeret - tjek venligst din email",
+        "spanish": "Tu cuenta está bloqueada; por favor revisa tu correo"
+    },
+    "post_does_not_exist": {
+        "english": "Post does not exist",
+        "danish": "Opslaget findes ikke",
+        "spanish": "La publicación no existe"
+    },
+    "email_already_registered": {
+        "english": "Email already registered",
+        "danish": "Email er allerede registreret",
+        "spanish": "Correo ya registrado"
+    },
+    "invalid_post_length": {
+        "english": "Invalid post length",
+        "danish": "Ugyldig længde på opslag",
+        "spanish": "Longitud de publicación no válida"
+    },
+    "the_world_is_reading_your_post": {
+        "english": "The world is reading your post!",
+        "danish": "Verden læser dit opslag!",
+        "spanish": "¡El mundo está leyendo tu publicación!"
+    },
+    "system_error": {
+        "english": "System Error",
+        "danish": "Systemfejl",
+        "spanish": "Error del sistema"
+    },
+    "file_too_large_maximum_size_is_4_mb": {
+        "english": "File too large. Maximum size is 4 MB",
+        "danish": "Filen er for stor. Maksimal størrelse er 4 MB",
+        "spanish": "Archivo demasiado grande. El tamaño máximo es 4 MB"
+    },
+    "system_under_maintenance": {
+        "english": "System under maintenance",
+        "danish": "Systemet er under vedligeholdelse",
+        "spanish": "Sistema en mantenimiento"
+    },
+    "post_deleted": {
+        "english": "Post deleted",
+        "danish": "Opslag slettet",
+        "spanish": "Publicación eliminada"
+    },
+    "user_does_not_exist": {
+        "english": "User does not exist",
+        "danish": "Brugeren findes ikke",
+        "spanish": "El usuario no existe"
+    },
+    "post_not_found": {
+        "english": "Post not found",
+        "danish": "Opslag ikke fundet",
+        "spanish": "Publicación no encontrada"
+    },
+    "you_cannot_delete_this_post": {
+        "english": "You cannot delete this post",
+        "danish": "Du kan ikke slette dette opslag",
+        "spanish": "No puedes eliminar esta publicación"
+    },
+    "you_must_be_logged_in": {
+        "english": "You must be logged in",
+        "danish": "Du skal være logget ind",
+        "spanish": "Debes iniciar sesión"
+    },
+    "the_world_is_reading_your_comment": {
+        "english": "The world is reading your comment!",
+        "danish": "Verden læser din kommentar!",
+        "spanish": "¡El mundo está leyendo tu comentario!"
+    },
+    "post_updated": {
+        "english": "Post updated",
+        "danish": "Opslag opdateret",
+        "spanish": "Publicación actualizada"
+    },
+    "user_is_now_blocked": {
+        "english": "User is now blocked",
+        "danish": "Brugeren er nu blokeret",
+        "spanish": "El usuario ahora está bloqueado"
+    },
+    "post_is_now_unblocked": {
+        "english": "Post is now unblocked",
+        "danish": "Opslaget er nu afblokeret",
+        "spanish": "La publicación ahora está desbloqueada"
+    },
+    "username_already_registered": {
+        "english": "Username already registered",
+        "danish": "Brugernavn er allerede registreret",
+        "spanish": "Nombre de usuario ya registrado"
+    },
+    "det_kan_du_ikke": {
+        "english": "you can't do that",
+        "danish": "det kan du ikke",
+        "spanish": "eso no puedes hacerlo"
+    },
+    "post_is_now_blocked": {
+        "english": "Post is now blocked",
+        "danish": "Opslaget er nu blokeret",
+        "spanish": "La publicación ahora está bloqueada"
+    },
+    "you_cannot_edit_this_post": {
+        "english": "You cannot edit this post",
+        "danish": "Du kan ikke redigere dette opslag",
+        "spanish": "No puedes editar esta publicación"
+    },
+    "ok": {
+        "english": "ok",
+        "danish": "ok",
+        "spanish": "ok"
+    },
+    "profile_updated_successfully": {
+        "english": "Profile updated successfully",
+        "danish": "Profil opdateret",
+        "spanish": "Perfil actualizado con éxito"
     }
 }
