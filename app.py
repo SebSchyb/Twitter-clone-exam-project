@@ -627,6 +627,8 @@ def api_delete_post(post_pk):
         html_post_container = render_template("___post_container.html")
         return f"""
             <browser mix-remove="#tweet-{post_pk}"></browser>
+            <browser mix-remove="#comment-form-{post_pk}"></browser>
+            <browser mix-remove="#comments-{post_pk}"></browser>
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-replace="#post_container">{html_post_container}</browser>
         """
@@ -927,6 +929,8 @@ def admin_block_post(post_pk):
 
         return f"""
             <browser mix-bottom="#toast">{toast}</browser>
+            <browser mix-remove="#comment-form-{post_pk}"></browser>
+            <browser mix-remove="#comments-{post_pk}"></browser>
             <browser mix-replace="#toggle-post-{post_pk}">{updated_button}</browser>
             <browser mix-remove="#tweet-{post_pk}"></browser>
         """
