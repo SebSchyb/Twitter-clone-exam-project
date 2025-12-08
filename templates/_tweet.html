@@ -83,10 +83,11 @@
         </div>
     </div>
 </article>
+
 <form
     class="post-comment d-flex flex-row a-items-center px-4 py-2 rounded-b-md {{'d-none' if tweet.post_is_blocked else ' '}}"
     mix-post="/api-create-comment/{{tweet.post_pk}}">
-    <img src="{{ url_for('static', filename='images/'~(tweet.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
+    <img src="{{ url_for('static', filename='images/'~(user.user_avatar_path if tweet.user_avatar_path else 'unknown.jpg')) }}"
         alt="Profile Picture" class="w-8 h-8 rounded-full" />
     <textarea name="comment" id="" class="w-full pa-2" placeholder="Post your reply" rows="1"></textarea>
     <button
