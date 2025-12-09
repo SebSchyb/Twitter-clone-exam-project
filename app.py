@@ -545,9 +545,12 @@ def api_edit_post(post_pk):
         
         message = request.form.get("message", "").strip()
 
-        if not (1 <= len(message) <= x.POST_MAX_LEN):
-            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+        if not (1 < len(message) <= x.POST_MAX_LEN):
+            message = f"POST: {x.POST_MIN_LEN} - {x.POST_MAX_LEN}"
+            toast_error = render_template("___toast_error.html", message=f"{x.lans('invalid_post_length')} {x.POST_MIN_LEN} - {x.POST_MAX_LEN} {x.lans('characters')}")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 400
+
+
 
         db, cursor = x.db()
 
@@ -692,8 +695,9 @@ def api_create_post():
         if "db" in locals(): db.rollback()
 
         if "x-error post" in str(ex):
-            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+            toast_error = render_template("___toast_error.html", message=f"{x.lans('invalid_post_length')} {x.POST_MIN_LEN} - {x.POST_MAX_LEN} {x.lans('characters')}")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 400
+
 
         toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
         return f"""<browser mix-bottom="#toast">{ toast_error }</browser>""", 500
@@ -731,8 +735,8 @@ def api_create_comment(post_pk):
         """
     except Exception as ex:
         if "x-error post" in str(ex):
-            toast_error = render_template("___toast_error.html", message=x.lans("invalid_post_length"))
-            return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
+            toast_error = render_template("___toast_error.html", message=f"{x.lans('invalid_post_length')} {x.POST_MIN_LEN} - {x.POST_MAX_LEN} {x.lans('characters')}")
+            return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 400
 
         ic(ex)
         toast_error = render_template("___toast_error.html", message=x.lans("system_under_maintenance"))
