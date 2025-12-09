@@ -119,7 +119,7 @@ def api_delete_profile():
         row = cursor.fetchone()
 
         if not row: 
-            toast_error = render_template("_toast_error.html", message=x.lans("ok"))
+            toast_error = render_template("_toast_error.html", message=x.lans("user_not_found"))
             return f"""<browser mix-bottom='#toast>{toast_error}'</browser>"""
         if row["user_pk"]!=user["user_pk"]:
             toast_error = render_template("_toast_error.html", message=x.lans("you_can't_do_that"))

@@ -139,10 +139,10 @@
         "danish": "Du kan ikke redigere dette opslag",
         "spanish": "No puedes editar esta publicación"
     },
-    "ok": {
-        "english": "ok",
-        "danish": "ok",
-        "spanish": "ok"
+    "user_not_found": {
+        "english": "User not found",
+        "danish": "Bruger ikke fundet",
+        "spanish": "usuario no encontrado"
     },
     "profile_updated_successfully": {
         "english": "Profile updated successfully",
