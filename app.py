@@ -161,7 +161,7 @@ def signup(lan = "english"):
 
             user_pk = uuid.uuid4().hex
             user_last_name = ""
-            user_avatar_path = "https://avatar.iran.liara.run/public/40"
+            user_avatar_path = "unknown.jpg"
             user_verification_key = uuid.uuid4().hex
             user_verified_at = 0
 
