@@ -18,7 +18,7 @@
                     </h1>
                     <p class="profile-username">@{{ user.user_username }}</p>
                 </div>
-                {% if user.user_is_admin %}
+                {% if session_user.user_is_admin %}
                 <div id="toggle-user-{{ user.user_pk }}">
                     {% include "__admin_toggle_user_button.html" with context %}
                 </div>
