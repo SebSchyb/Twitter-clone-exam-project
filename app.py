@@ -331,7 +331,7 @@ def home():
         cursor.execute(q, (user["user_pk"],))
         suggestions = cursor.fetchall()
 
-        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user)
+        return render_template("home.html", tweets=tweets, trends=trends, suggestions=suggestions, user=user, session_user=user)
     except Exception as ex:
         ic(ex)
         return "error"
@@ -1172,7 +1172,7 @@ def user_profile(username):
 
         is_me = session_user["user_pk"] == user["user_pk"]
 
-        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=is_me)
+        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=is_me, session_user=session_user)
 
         return f"""<browser mix-update="main">{ profile_html }</browser>"""
 

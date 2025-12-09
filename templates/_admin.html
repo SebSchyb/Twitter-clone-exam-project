@@ -1,27 +1,24 @@
 <section id="admin">
     <h1>{{ x.lans("admin") }}</h1>
 
-    <details>
-        <summary>{{ x.lans("see_blocked_posts") }}</summary>
+    <details class="admin">
+        <summary class="admin">{{ x.lans("see_blocked_posts") }}</summary>
 
         <section id="posts" class="profile-timeline">
             <h2>{{ x.lans("blocked_tweets") }}</h2>
 
-            {% for tweet in tweets: %}
-            {% include "_tweet.html" %}
-            {% else %}
+            {% for tweet in tweets: %} {% include "_tweet.html" %} {% else %}
             <p class="profile-empty-state">{{ x.lans("no_blocked_tweets") }}</p>
             {% endfor %}
         </section>
     </details>
-    <details>
-        <summary>{{ x.lans("see_blocked_users") }}</summary>
+    <details class="admin">
+        <summary class="admin">{{ x.lans("see_blocked_users") }}</summary>
 
         <h2>{{ x.lans("blocked_users") }}</h2>
 
-        {% for blocked_user in blocked_users: %}
-        {% include "_blocked_user.html" %}
-        {% else %}
+        {% for blocked_user in blocked_users: %} {% include "_blocked_user.html"
+        %} {% else %}
         <p class="profile-empty-state">{{ x.lans("no_blocked_users") }}</p>
         {% endfor %}
     </details>

@@ -1295,7 +1295,7 @@ details.profile-edit .close-edit:hover {
 .blocked {
     background: rgba(255, 0, 0, 0.124);
 }
-#admin details[open] summary ~ * {
+#admin details[open] summary.admin ~ * {
     animation: open 0.3s ease-in-out;
 }
 
@@ -1307,11 +1307,11 @@ details.profile-edit .close-edit:hover {
         opacity: 1;
     }
 }
-#admin details summary::-webkit-details-marker {
+#admin details.admin summary.admin::-webkit-details-marker {
     display: none;
 }
 
-#admin details summary {
+#admin details.admin summary.admin {
     width: 100%;
     padding: 0.5rem 0;
     border-top: 1px solid black;
@@ -1322,7 +1322,7 @@ details.profile-edit .close-edit:hover {
     list-style: none;
 }
 
-#admin details summary:after {
+#admin details.admin summary.admin:after {
     content: "+";
     color: black;
     position: absolute;
@@ -1334,14 +1334,14 @@ details.profile-edit .close-edit:hover {
     transform-origin: center;
     transition: 200ms linear;
 }
-#admin details[open] summary:after {
+#admin details.admin[open] summary.admin:after {
     transform: rotate(45deg);
     font-size: 2rem;
 }
-#admin details summary {
+#admin details.admin summary.admin {
     outline: 0;
 }
-#admin details p {
+#admin details.admin p {
     font-size: 0.95rem;
     margin: 0 0 1rem;
     padding-top: 1rem;
