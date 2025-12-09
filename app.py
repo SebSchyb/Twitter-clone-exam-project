@@ -391,7 +391,7 @@ def home_comp():
 
         tweets = grab_tweets(useronly=False)
 
-        html = render_template("_home_comp.html", tweets=tweets, user=user, comment={})
+        html = render_template("_home_comp.html", tweets=tweets, user=user, comment={}, session_user=user)
         return f"""<mixhtml mix-update="main">{ html }</mixhtml>"""
     except Exception as ex:
         ic(ex)
@@ -420,7 +420,7 @@ def profile():
 
         tweets = grab_tweets(useronly=True, target_user_pk=session_user["user_pk"])
 
-        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True)
+        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True, session_user=session_user)
 
         return f"""<browser mix-update="main">{ profile_html }</browser>"""
         
