@@ -550,8 +550,6 @@ def api_edit_post(post_pk):
             toast_error = render_template("___toast_error.html", message=f"{x.lans('invalid_post_length')} {x.POST_MIN_LEN} - {x.POST_MAX_LEN} {x.lans('characters')}")
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>""", 400
 
-
-
         db, cursor = x.db()
 
         q = "SELECT post_user_fk FROM posts WHERE post_pk = %s"
