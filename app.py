@@ -1196,7 +1196,7 @@ def get_admin():
         cursor.execute(q,)
         blocked_users = cursor.fetchall()
         ic(blocked_users)
-        html = render_template("_admin.html", tweets=tweets, user=user, blocked_users=blocked_users)
+        html = render_template("_admin.html", tweets=tweets, user=user, blocked_users=blocked_users, session_user=user)
         return f"""<browser mix-update="main">{html}</browser> """
     except Exception as ex:
         ic(ex)
