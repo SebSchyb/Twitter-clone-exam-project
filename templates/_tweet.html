@@ -131,7 +131,7 @@
     mix-post="/api-create-comment/{{tweet.post_pk}}"
 >
     <img
-        src="{{ url_for('static', filename='images/'~(user.user_avatar_path if user.user_avatar_path else 'unknown.jpg')) }}"
+        src="{{ url_for('static', filename='images/'~(session_user.user_avatar_path if session_user.user_avatar_path else 'unknown.jpg')) }}"
         alt="{{ x.lans('profile_picture') }}"
         class="w-8 h-8 rounded-full"
     />
