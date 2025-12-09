@@ -74,7 +74,7 @@
                             </button>
                         </form>
 
-                        <form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-post>
+                        <form class="x-dialog__form" action="{{ url_for('api_delete_profile') }}" mix-patch>
                             <button type="button" class="btn btn-delete-profile"
                                 mix-default="{{ x.lans('delete_profile') }}" mix-await="Deleting profile ..." onclick="
                                     let value = prompt('Type DELETE to confirm profile deletion:');

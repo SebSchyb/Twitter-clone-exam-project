@@ -106,7 +106,7 @@ def login(lan = "english"):
             if "cursor" in locals(): cursor.close()
             if "db" in locals(): db.close()
 
-@app.post("/api-delete-profile")
+@app.patch("/api-delete-profile")
 def api_delete_profile():
     try:
         user = session.get("user", "")
@@ -420,7 +420,7 @@ def profile():
 
         tweets = grab_tweets(useronly=True, target_user_pk=session_user["user_pk"])
 
-        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True)
+        profile_html = render_template("_profile.html", user=user, tweets=tweets, is_me=True, session_user=session_user )
 
         return f"""<browser mix-update="main">{ profile_html }</browser>"""
         
