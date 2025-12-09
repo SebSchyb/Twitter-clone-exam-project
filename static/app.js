@@ -91,7 +91,7 @@ document.addEventListener("click", async function (event) {
     });
 
     const data = await resp.json();
-
+    console.log(data);
     const icon = btn.querySelector("i");
     const count = btn.querySelector(".like-count");
 

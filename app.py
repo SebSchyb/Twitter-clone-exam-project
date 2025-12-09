@@ -518,7 +518,7 @@ def toggle_like():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-        return jsonify({"followed": liked, "like_count": like_count})
+        return jsonify({"liked": liked, "like_count": like_count})
     except Exception as ex:
         ic(ex)
         try:
