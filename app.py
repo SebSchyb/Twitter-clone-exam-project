@@ -616,7 +616,7 @@ def api_delete_post(post_pk):
             toast_error = render_template("___toast_error.html", message=x.lans("post_not_found"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
-        if row["post_user_fk"] != user["user_pk"]:
+        if row["post_user_fk"] != user["user_pk"] and not user.get("user_is_admin"):
             toast_error = render_template("___toast_error.html", message=x.lans("you_cannot_delete_this_post"))
             return f"""<browser mix-bottom="#toast">{toast_error}</browser>"""
 
