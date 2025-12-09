@@ -682,7 +682,7 @@ def api_create_post():
             "liked": None,
         }
         html_post_container = render_template("___post_container.html")
-        html_post = render_template("_tweet.html", tweet=tweet, user=user)
+        html_post = render_template("_tweet.html", tweet=tweet, user=user, session_user=user)
         return f"""
             <browser mix-bottom="#toast">{toast_ok}</browser>
             <browser mix-top="#posts">{html_post}</browser>
