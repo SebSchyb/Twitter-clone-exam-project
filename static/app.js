@@ -108,77 +108,6 @@ document.addEventListener("click", async function (event) {
     btn.disabled = false;
 });
 
-//  ##############################
-// // Handles edits/deletes
-// document.addEventListener("click", async function (event) {
-//     //
-//     // DELETE POST
-//     //
-//     // const del = event.target.closest(".delete-btn");
-//     // if (del) {
-//     //     event.preventDefault();
-
-//     //     const postPk = del.dataset.post;
-
-//     //     // Simple confirmation popup
-//     //     if (!confirm("Are you sure you want to delete your post?")) return;
-
-//     //     // Send DELETE request
-//     //     const resp = await fetch(`/api-delete-post/${postPk}`, {
-//     //         method: "DELETE",
-//     //     });
-//     //     const data = await resp.text();
-//     //     console.log(data);
-
-//         // const respGet = await fetch(`/home-comp`, {
-//         //     method: "GET",
-//         // });
-//         // console.log(await respGet.text());
-//         // // Read the HTML (mixhtml instructions)
-//         // const html = await resp.text();
-
-//         // // Inject into DOM so mixhtml reacts to <browser> tags
-//         // const temp = document.createElement("div");
-//         // temp.innerHTML = html;
-//         // document.body.appendChild(temp);
-
-//         // // mixhtml processes the <browser> elements immediately
-//         // temp.remove();
-
-//         return;
-//     }
-
-//     //
-//     // EDIT POST
-//     //
-//     // const edit = event.target.closest(".edit-btn");
-//     // if (edit) {
-//     //     event.preventDefault();
-
-//     //     const postPk = edit.dataset.post;
-//     //     const textEl = document.querySelector(`#text-${postPk}`);
-//     //     const oldText = textEl.textContent.trim();
-
-//     //     // Ask user for updated text
-//     //     const newText = prompt("Edit your post:", oldText);
-//     //     if (newText === null) return; // User cancelled
-//     //     if (!newText.trim()) return; // Empty input not allowed
-
-//     //     // Send PATCH with JSON
-//     //     const resp = await fetch(`/api-edit-post/${postPk}`, {
-//     //         method: "PATCH",
-//     //         headers: { "Content-Type": "application/json" },
-//     //         body: JSON.stringify({ message: newText }),
-//     //     });
-
-//     //     // const respGet = await fetch(`/home-comp`, {
-//     //     //     method: "GET",
-//     //     // });
-//     //     // console.log(await respGet.text());
-
-//     //     return;
-//     // }
-// });
 //Handle follow/unfollow
 // ##############################
 document.addEventListener("click", async function (event) {
@@ -226,12 +155,6 @@ document.addEventListener("click", function (e) {
     // If an edit button is clicked
     if (e.target.classList.contains("edit-btn")) {
         const postId = e.target.dataset.post;
-
-        // Set hidden input so backend knows what to update
-        // document.getElementById(`editPostId`).value = postId;
-
-        // OPTIONAL: Load existing content dynamically (Ajax or template)
-        // document.getElementById("editText").value = ... ;
 
         // Show modal
         document
