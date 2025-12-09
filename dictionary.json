@@ -50,9 +50,9 @@
         "spanish": "Correo ya registrado"
     },
     "invalid_post_length": {
-        "english": "Invalid post length",
-        "danish": "Ugyldig længde på opslag",
-        "spanish": "Longitud de publicación no válida"
+        "english": "Error:",
+        "danish": "Fejl:",
+        "spanish": "Error:"
     },
     "the_world_is_reading_your_post": {
         "english": "The world is reading your post!",
@@ -568,5 +568,10 @@
         "english": "posting...",
         "danish": "slår op...",
         "spanish": "publicar..."
+    },
+    "signup_button": {
+        "english": "Sign up",
+        "danish": "Tilmeld dig",
+        "spanish": "Registrarse"
     }
 }
